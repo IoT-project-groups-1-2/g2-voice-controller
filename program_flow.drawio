@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-11-07T13:29:39.855Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.35" etag="7C7KGjlCI-093z8OwgAp" version="20.5.3" type="github">
+<mxfile host="app.diagrams.net" modified="2022-11-07T13:33:13.989Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.35" etag="VZANTyEhltjn65d6Yr9W" version="20.5.3" type="github">
   <diagram id="noXtI8yG-Q0kP_Rg9Qby" name="Page-1">
     <mxGraphModel dx="1375" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -29,7 +29,7 @@
           <mxGeometry x="375" y="320" width="107" height="40" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-39" value="Turn off LED, parse audio to command" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="376.5" y="580" width="108" height="40" as="geometry" />
+          <mxGeometry x="376.5" y="590" width="108" height="40" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Ak3pNvMB7soRYmI9vHG3-40" target="Ak3pNvMB7soRYmI9vHG3-36">
           <mxGeometry relative="1" as="geometry">
@@ -43,13 +43,13 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-40" value="Publish MQTT message" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="376.5" y="790" width="108" height="40" as="geometry" />
+          <mxGeometry x="374.5" y="800" width="108" height="40" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Ak3pNvMB7soRYmI9vHG3-42" target="Ak3pNvMB7soRYmI9vHG3-40">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-42" value="Command exists" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" vertex="1" parent="1">
-          <mxGeometry x="348" y="650" width="165" height="60" as="geometry" />
+          <mxGeometry x="347" y="680" width="165" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-43" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="Ak3pNvMB7soRYmI9vHG3-39" target="Ak3pNvMB7soRYmI9vHG3-42">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -72,7 +72,7 @@
             <mxPoint x="511" y="525" as="sourcePoint" />
             <mxPoint x="548" y="250" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="720" y="680" />
+              <mxPoint x="720" y="710" />
               <mxPoint x="720" y="440" />
             </Array>
           </mxGeometry>
@@ -91,7 +91,7 @@
           <mxGeometry x="420" y="220" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-55" value="Yes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="380" y="710" width="60" height="30" as="geometry" />
+          <mxGeometry x="425" y="740" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Ak3pNvMB7soRYmI9vHG3-69" value="No" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="300" y="160" width="60" height="30" as="geometry" />

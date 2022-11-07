@@ -1,9 +1,21 @@
-<mxfile host="app.diagrams.net" modified="2022-11-07T12:14:30.018Z" agent="5.0 (Windows)" etag="Q7e_NnIzh2IyCIA71Mfa" version="20.3.6" type="github">
+<mxfile host="app.diagrams.net" modified="2022-11-07T12:18:41.509Z" agent="5.0 (Windows)" etag="sjHbHHa4K8ABa6xviZt1" version="20.3.6" type="github">
   <diagram id="noXtI8yG-Q0kP_Rg9Qby" name="Page-1">
     <mxGraphModel dx="1422" dy="772" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="Fp8Ozq0MW7mNheAk7rFO-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Fp8Ozq0MW7mNheAk7rFO-2" target="Fp8Ozq0MW7mNheAk7rFO-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Fp8Ozq0MW7mNheAk7rFO-2" value="i2s MEMS micophone" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Fp8Ozq0MW7mNheAk7rFO-4" value="Beaglebone Black Wifi" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="350" y="300" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="Fp8Ozq0MW7mNheAk7rFO-6" value="PDM" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="375" y="230" width="50" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

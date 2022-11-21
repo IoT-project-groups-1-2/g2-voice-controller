@@ -10,13 +10,52 @@
 </head>
 <body>
 <p id="text"></p>
+<p id="message"></p>
 <script>
+
+    function abort () {
+
+            if (annyang.isListening()) {
+                    console.log("hi")
+                    annyang.abort();
+                    document.getElementById('message').innerText = 'Voice recognition aborted.';
+
+            }
+
+            return false;
+    };
+    // if(!annyang.isListening()){
+    //     abort();
+    // }
     if (annyang) {
         // Let's define a command.
+
+        let test = annyang.isListening();
+        setInterval(function(){
+            if (test == true) {
+                setTimeout(abort, 5000)
+            }
+        },100)
+
+
+
+        setInterval(function(){
+            test = annyang.isListening();
+        },100)
+
+
+
+
         annyang.addCommands({
-            'hello': function() { document.getElementById('text').innerText = 'Hello' }
+            'hello': function() { document.getElementById('text').innerText = 'Hello' },
+            'caonima':function() { document.getElementById('message').innerText = 'CAONIMA!'}
         });
+
+
+
         SpeechKITT.annyang();
+
+
 
         // Define a stylesheet for KITT to use
         SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
@@ -24,11 +63,19 @@
         // Render KITT's interface
         SpeechKITT.vroom();
 
+
+
+
+
+
+
         // Add our commands to annyang
 
         // Start listening.
 
     }
+
+
 </script>
 </body>
 </html>

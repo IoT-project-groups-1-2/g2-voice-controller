@@ -17,31 +17,33 @@
 
             if (annyang.isListening()) {
                     console.log("hi")
+                setInterval(function(){
                     annyang.abort();
                     document.getElementById('message').innerText = 'Voice recognition aborted.';
+                },5000)
+
 
             }
 
             return false;
     };
-    // if(!annyang.isListening()){
-    //     abort();
-    // }
     if (annyang) {
         // Let's define a command.
-
-        let test = annyang.isListening();
-        setInterval(function(){
-            if (test == true) {
-                setTimeout(abort, 5000)
-            }
-        },100)
-
+        setInterval(function () {
+                if (SpeechKITT.isListening() || annyang.isListening()) {
+                    abort();
+                    console.log(annyang.isListening());
+                }
+        },5000)
 
 
-        setInterval(function(){
-            test = annyang.isListening();
-        },100)
+
+
+
+
+
+
+
 
 
 

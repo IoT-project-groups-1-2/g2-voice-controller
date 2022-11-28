@@ -11,8 +11,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Defining constants
 const PORT = process.env.PORT || 3000;
-
-
 const broker_url = 'mqtt://127.0.0.1:1883';
 const client = mqtt.connect(broker_url, { clientId: 'node', clean: true });
 const settings_topic = "controller/settings";

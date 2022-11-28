@@ -2,13 +2,37 @@
 <html lang="en">
 <script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+<style>
+    body {
+        font-family: Arial;
+        margin: 0;
+
+    }
 
 
+    p{
+        font-size: 20px;
+        color: white;
+    }
+    .header {
+        padding: 30px;
+        text-align: left;
+        background: #1abc9c;
+        color: white;
+        font-size: 30px;
+    }
+
+</style>
 <head>
     <meta charset="UTF-8">
     <title>HAHA</title>
 </head>
 <body>
+
+<div class = "header">
+    <h1>Voice</h1>
+</div>
+
 <p id="text"></p>
 <p id="message"></p>
 <p id="mqtt-message"></p>
@@ -17,13 +41,6 @@
 
     if (annyang) {
         // Let's define a command.
-
-
-
-
-
-
-
 
 
 
@@ -47,6 +64,7 @@
             }
         }, 50)
 
+        
 
         // Define a stylesheet for KITT to use
         SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');

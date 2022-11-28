@@ -11,31 +11,51 @@
 <body>
 <p id="text"></p>
 <p id="message"></p>
-<p id="mqtt-message"></p>
 <script>
 
-    if(annyang) {
+    function abort () {
+
+            if (annyang.isListening()) {
+                    console.log("hi")
+                setInterval(function(){
+                    annyang.abort();
+                    document.getElementById('message').innerText = 'Voice recognition aborted.';
+                },5000)
+
+
+            }
+
+            return false;
+    };
+    if (annyang) {
+        // Let's define a command.
+        setInterval(function () {
+                if (SpeechKITT.isListening() || annyang.isListening()) {
+                    abort();
+                    console.log(annyang.isListening());
+                }
+        },5000)
+
+
+
+
+
+
+
+
+
+
+
+
 
         annyang.addCommands({
-            'hello': function() { document.getElementById('text').innerText = 'Hello';console.log('HELLO RECOGNISED!') },
+            'hello': function() { document.getElementById('text').innerText = 'Hello' },
             'caonima':function() { document.getElementById('message').innerText = 'CAONIMA!'}
         });
 
 
 
         SpeechKITT.annyang();
-
-
-        setInterval(() => {
-            if(SpeechKITT.isListening()) {
-                setTimeout(() => {
-                    SpeechKITT.abortRecognition();
-                }, 10000);
-            }
-        }, 50)
-
-
-
 
 
 
@@ -55,14 +75,7 @@
 
         // Start listening.
 
-
-
     }
-    setInterval(function () {
-        fetch('/voice-data').then(tmp => tmp.json()).then(data => {
-            document.getElementById('mqtt-message').innerText = data;
-        })
-    },1000);
 
 
 </script>

@@ -34,8 +34,9 @@ app.get('/voice-data',(req, res) => {
         client.removeAllListeners();
         msg = msg.toString();
         console.log(msg);
-        res.json(msg);
+        return res.json(msg);
     });
+    res.send('sucks');
 
 });
 

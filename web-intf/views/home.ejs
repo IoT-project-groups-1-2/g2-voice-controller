@@ -25,7 +25,7 @@
 </style>
 <head>
     <meta charset="UTF-8">
-    <title>HAHA</title>
+    <title>Recording</title>
 </head>
 <body>
 
@@ -40,16 +40,10 @@
 
 
     if (annyang) {
-        // Let's define a command.
-
-
-
-
-
 
         annyang.addCommands({
-            'hello': function() { document.getElementById('text').innerText = 'Hello' },
-            'caonima':function() { document.getElementById('message').innerText = 'CAONIMA!'}
+            'hello': () => { document.getElementById('text').innerText = 'Hello' },
+            'hi': () => { document.getElementById('text').innerText = 'Hi'}
         });
 
 

@@ -4,7 +4,8 @@ import time
 from machine import I2S
 from machine import Pin
 
-# ======= RAM BLOCK CONFIGURATION =======
+#This defines a "RAM" block of memory we can boot for files -> it builds into the internal flash memory (2MB of flash in total)
+# ======= RAM BLOCK DEFINITION =======
 class RAMBlockDev:
     def __init__(self, block_size, num_blocks):
         self.block_size = block_size
@@ -32,10 +33,10 @@ class RAMBlockDev:
             return self.block_size
         if op == 6: # block erase
             return 0
-# ======= RAM BLOCK CONFIGURATION =======
+# ======= RAM BLOCK DEFINITION =======
 
 # ======= BOOT FILESYSTEM INTO RAM =======
-bdev = RAMBlockDev(1024, 50)
+bdev = RAMBlockDev(1024, 50) # Large 1MB RAM block (50% of internal flash capacity)
 os.VfsLfs2.mkfs(bdev)
 os.mount(bdev, '/ramdisk')
 # ======= BOOT FILESYSTEM =======
@@ -45,7 +46,7 @@ SCK_PIN = 16
 WS_PIN = 17
 SD_PIN = 18
 I2S_ID = 0
-BUFFER_LENGTH_IN_BYTES = 60000  # larger buffer to accommodate slow SD card driver
+BUFFER_LENGTH_IN_BYTES = 60000
 # ======= I2S CONFIGURATION =======
 
 # ======= AUDIO CONFIGURATION =======
@@ -92,8 +93,8 @@ def i2s_callback_rx(arg):
     global num_read
 
     if state == RECORD:
-        num_bytes_written = wav.write(mic_samples_mv[:num_read])
-        num_sample_bytes_written_to_wav += num_bytes_written
+        #commented out code:    num_bytes_written = wav.write(mic_samples_mv[:num_read])
+        #commented out code:    num_sample_bytes_written_to_wav += num_bytes_written
         # read samples from the I2S device.  This callback function
         # will be called after 'mic_samples_mv' has been completely filled
         # with audio samples

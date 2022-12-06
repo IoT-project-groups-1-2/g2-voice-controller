@@ -9,21 +9,7 @@ from sdcard import SDCard
 from machine import SPI
 
 cs = Pin(13, machine.Pin.OUT)
-spi = SPI(
-    1,
-    baudrate=1_000_000,  # this has no effect on spi bus speed to SD Card
-    polarity=0,
-    phase=0,
-    bits=8,
-    firstbit=machine.SPI.MSB,
-    sck=Pin(14),
-    mosi=Pin(15),
-    miso=Pin(12),
-    )
 
-sd = SDCard(spi, cs)
-sd.init_spi(25_000_000)  # increase SPI bus speed to SD card
-os.mount(sd, "/sd")
 
 # ======= I2S CONFIGURATION =======
 SCK_PIN = 16
@@ -107,17 +93,8 @@ async def record_wav_to_sdcard(audio_in, wav):
     print("==========  DONE RECORDING ==========")
     # cleanup
     wav.close()
-    if os.uname().machine.count("PYBD"):
-        os.umount("/sd")
-    elif os.uname().machine.count("ESP32"):
-        os.umount("/sd")
-        sd.deinit()
-    elif os.uname().machine.count("Raspberry"):
-        os.umount("/sd")
-        spi.deinit()
-    elif os.uname().machine.count("MIMXRT"):
-        os.umount("/sd")
-        sd.deinit()
+    os.umount("/sd")
+    spi.deinit()
     audio_in.deinit()
 
 

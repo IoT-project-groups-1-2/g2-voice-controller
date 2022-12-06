@@ -10,7 +10,6 @@ from machine import SPI
 
 cs = Pin(13, machine.Pin.OUT)
 
-
 # ======= I2S CONFIGURATION =======
 SCK_PIN = 16
 WS_PIN = 17
@@ -93,7 +92,6 @@ async def record_wav_to_sdcard(audio_in, wav):
     print("==========  DONE RECORDING ==========")
     # cleanup
     wav.close()
-    os.umount("/sd")
     spi.deinit()
     audio_in.deinit()
 
@@ -128,14 +126,13 @@ try:
         ibuf=BUFFER_LENGTH_IN_BYTES,
     )
 
-    wav = open("/testfile".format(WAV_FILE), "wb")
+    wav = open("/audiofile".format(WAV_FILE), "wb")
     asyncio.run(main(audio_in, wav))
 except (KeyboardInterrupt, Exception) as e:
     print("Exception {} {}\n".format(type(e).__name__, e))
 finally:
     # cleanup
     wav.close()
-    os.umount("/sd")
     spi.deinit()
     sd.deinit()
     audio_in.deinit()

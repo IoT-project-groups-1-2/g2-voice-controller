@@ -1,17 +1,3 @@
-# The MIT License (MIT)
-# Copyright (c) 2022 Mike Teachman
-# https://opensource.org/licenses/MIT
-
-# Purpose:  Read audio samples from an I2S microphone and write to internal buffer
-#
-# - read 32-bit audio samples from I2S hardware, typically an I2S MEMS Microphone
-# - convert 32-bit samples to specified bit size and format
-# - write samples to a SD card file in WAV format
-# - samples will be continuously written to the WAV file
-#   for the specified amount of time
-#
-# uasyncio version
-
 import os
 import time
 import urandom
@@ -172,16 +158,8 @@ except (KeyboardInterrupt, Exception) as e:
 finally:
     # cleanup
     wav.close()
-    if os.uname().machine.count("PYBD"):
-        os.umount("/sd")
-    elif os.uname().machine.count("ESP32"):
-        os.umount("/sd")
-        sd.deinit()
-    elif os.uname().machine.count("Raspberry"):
-        os.umount("/sd")
-        spi.deinit()
-    elif os.uname().machine.count("MIMXRT"):
-        os.umount("/sd")
-        sd.deinit()
+    os.umount("/sd")
+    spi.deinit()
+    sd.deinit()
     audio_in.deinit()
     ret = asyncio.new_event_loop()  # Clear retained uasyncio state

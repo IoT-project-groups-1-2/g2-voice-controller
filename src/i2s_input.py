@@ -128,7 +128,7 @@ try:
         ibuf=BUFFER_LENGTH_IN_BYTES,
     )
 
-    wav = open("/sd/{}".format(WAV_FILE), "wb")
+    wav = open("/testfile".format(WAV_FILE), "wb")
     asyncio.run(main(audio_in, wav))
 except (KeyboardInterrupt, Exception) as e:
     print("Exception {} {}\n".format(type(e).__name__, e))

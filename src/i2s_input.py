@@ -4,7 +4,7 @@ import time
 from machine import I2S
 from machine import Pin
 
-#This defines a "RAM" block of memory we can boot for files -> it builds into the internal flash memory (2MB of flash in total)
+#This class defines a "RAM" block of memory we can boot for files -> it builds into the internal flash memory (2MB of flash in total)
 # ======= RAM BLOCK DEFINITION =======
 class RAMBlockDev:
     def __init__(self, block_size, num_blocks):
@@ -36,7 +36,7 @@ class RAMBlockDev:
 # ======= RAM BLOCK DEFINITION =======
 
 # ======= BOOT FILESYSTEM INTO RAM =======
-bdev = RAMBlockDev(1024, 50) # Large 1MB RAM block (50% of internal flash capacity)
+bdev = RAMBlockDev(1024, 50)
 os.VfsLfs2.mkfs(bdev)
 os.mount(bdev, '/ramdisk')
 # ======= BOOT FILESYSTEM =======
@@ -93,8 +93,8 @@ def i2s_callback_rx(arg):
     global num_read
 
     if state == RECORD:
-        #commented out code:    num_bytes_written = wav.write(mic_samples_mv[:num_read])
-        #commented out code:    num_sample_bytes_written_to_wav += num_bytes_written
+        num_bytes_written = wav.write(mic_samples_mv[:num_read])
+        num_sample_bytes_written_to_wav += num_bytes_written
         # read samples from the I2S device.  This callback function
         # will be called after 'mic_samples_mv' has been completely filled
         # with audio samples
@@ -104,10 +104,10 @@ def i2s_callback_rx(arg):
         num_read = audio_in.readinto(mic_samples_mv)
     elif state == PAUSE:
         # in the PAUSE state read audio samples from the I2S device
-        # but do not write the samples to SD card
+        # but do not write the samples to file
         num_read = audio_in.readinto(mic_samples_mv)
     elif state == STOP:
-        # create header for WAV file and write to SD card
+        # create header for WAV file and write file
         wav_header = create_wav_header(
             SAMPLE_RATE_IN_HZ,
             WAV_SAMPLE_SIZE_IN_BITS,
@@ -146,7 +146,7 @@ audio_in.irq(i2s_callback_rx)
 
 # allocate sample arrays
 # memoryview used to reduce heap allocation in while loop
-mic_samples = bytearray(10000)
+mic_samples = bytearray(100)
 mic_samples_mv = memoryview(mic_samples)
 
 num_sample_bytes_written_to_wav = 0

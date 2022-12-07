@@ -36,7 +36,7 @@ app.get('/voice-data',(req, res) => {
         console.log(msg);
         return res.json(msg);
     });
-    res.send('sucks');
+    // res.send("yolo");
 
 });
 

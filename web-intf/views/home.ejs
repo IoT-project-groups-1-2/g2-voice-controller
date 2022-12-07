@@ -5,8 +5,8 @@
 <style>
     body {
         font-family: Arial;
-        margin: 0;
-
+        background: lightblue ;
+        margin:0;
     }
 
 
@@ -20,17 +20,23 @@
         color: white;
         font-size: 30px;
     }
+
     /* Sets the containers height and width */
     .base-timer {
         position: absolute;
-        top: 92%;
-        left: 5%;
-        width: 60px;
-        height: 60px;
+        top: 50%;
+        left: 50%;
+        width: 200px;
+        height: 200px;
+
+
     }
+
+
 
     .base-timer__svg {
         transform: scaleX(-1);
+
     }
 
     .base-timer__circle {
@@ -67,13 +73,13 @@
 
     .base-timer__label {
         position: absolute;
-        width: 60px;
-        height: 60px;
+        width: 200px;
+        height: 200px;
         top: 0%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 28px;
     }
 
 
@@ -85,7 +91,11 @@
 <body>
 
 <div class = "header">
-    <h1>Voice</h1>
+    <h1>SAY SOMETHING!</h1>
+</div>
+
+<div class = "testing">
+
 </div>
 
 <p id="text"></p>
@@ -96,8 +106,8 @@
 
 <script>
     const FULL_DASH_ARRAY = 283;
-    const WARNING_THRESHOLD = 10;
-    const ALERT_THRESHOLD = 5;
+    const WARNING_THRESHOLD = 7;
+    const ALERT_THRESHOLD = 3;
 
     const COLOR_CODES = {
         info: {
@@ -228,23 +238,9 @@
             .setAttribute("stroke-dasharray", circleDasharray);
     }
 
-    // function resetTimer(){
-    //
-    //     timeLeft = 10;
-    //     timePassed = 0;
-    //     setRemainingPathColor(timeLeft);
-    //     document.getElementById("base-timer-label").innerHTML = formatTime(
-    //         timeLeft
-    //     );
-    //     const { alert, warning, info } = COLOR_CODES;
-    //     document
-    //         .getElementById("base-timer-path-remaining")
-    //         .classList.remove(alert.color);
-    //     document
-    //         .getElementById("base-timer-path-remaining")
-    //         .classList.add(info.color);
-    //     onTimesUp();
-    // }
+
+
+
 
 
 
@@ -260,16 +256,12 @@
 
         SpeechKITT.annyang();
 
-
         let isRecording = true;
         let running = 0;
         let counts = 0;
         setInterval(() => {
 
             if(SpeechKITT.isListening()) {
-                document
-                    .getElementById('base-timer')
-                    .style.setProperty("left","500px");
                 counts += 1;
                 if(isRecording === true){
                     isRecording = false;
@@ -277,14 +269,10 @@
                     running += 1;
 
                 }
-                // setTimeout(() => {
-                //     SpeechKITT.abortRecognition();
-                //     isRecording = true;
-                //     resetTimer();
-                // }, 10000);
+
                 if(counts >= 10000/50){
                         SpeechKITT.abortRecognition();
-                        document.getElementById('base-timer').setAttribute('style', 'left: 5%');
+
                         isRecording = true;
                         onTimesUp();
                         counts = 0;
@@ -292,19 +280,12 @@
 
 
             }else if (!SpeechKITT.isListening()){
-                document.getElementById('base-timer').setAttribute('style', 'left: 5%');
                 counts = 0;
                 isRecording = true;
                 if(running === 1){
                     running = 0;
                     onTimesUp();
                 }
-
-                // if(running){
-                //     console.log("NO!")
-                //     resetTimer();
-                //     running = false;
-                // }
 
             }
         }, 50);
@@ -321,11 +302,6 @@
 
 
 
-
-
-        // Add our commands to annyang
-
-        // Start listening.
 
     }
 

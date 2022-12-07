@@ -1,6 +1,6 @@
 import os
 import io
-import time
+import utime
 from machine import I2S
 from machine import Pin
 
@@ -53,7 +53,7 @@ BUFFER_LENGTH_IN_BYTES = 60000
 WAV_FILE = "mic.wav"
 WAV_SAMPLE_SIZE_IN_BITS = 16
 FORMAT = I2S.MONO
-SAMPLE_RATE_IN_HZ = 22050
+SAMPLE_RATE_IN_HZ = 44100
 # ======= AUDIO CONFIGURATION =======
 
 RECORD = 0
@@ -65,6 +65,11 @@ format_to_channels = {I2S.MONO: 1, I2S.STEREO: 2}
 NUM_CHANNELS = format_to_channels[FORMAT]
 WAV_SAMPLE_SIZE_IN_BYTES = WAV_SAMPLE_SIZE_IN_BITS // 8
 
+# GPIO_0 LED def here
+LED = machine.Pin(0, machine.Pin.OUT)
+
+# GPIO_1 LED def here
+BUTTON = machine.Pin(1, machine.Pin.IN)
 
 def create_wav_header(sampleRate, bitsPerSample, num_channels, num_samples):
     datasize = num_samples * num_channels * bitsPerSample // 8
@@ -93,6 +98,9 @@ def i2s_callback_rx(arg):
     global num_read
 
     if state == RECORD:
+        LED.high()
+        utime.sleep(0.5)
+        LED.low()
         num_bytes_written = wav.write(mic_samples_mv[:num_read])
         num_sample_bytes_written_to_wav += num_bytes_written
         # read samples from the I2S device.  This callback function
@@ -100,13 +108,18 @@ def i2s_callback_rx(arg):
         # with audio samples
         num_read = audio_in.readinto(mic_samples_mv)
     elif state == RESUME:
+        LED.high()
+        utime.sleep(0.5)
+        LED.low()
         state = RECORD
         num_read = audio_in.readinto(mic_samples_mv)
     elif state == PAUSE:
+        LED.low()
         # in the PAUSE state read audio samples from the I2S device
         # but do not write the samples to file
         num_read = audio_in.readinto(mic_samples_mv)
     elif state == STOP:
+        LED.low()
         # create header for WAV file and write file
         wav_header = create_wav_header(
             SAMPLE_RATE_IN_HZ,
@@ -157,17 +170,22 @@ state = PAUSE
 num_read = audio_in.readinto(mic_samples_mv)
 
 # === Main program code goes here ===
-# audio sample recording to SD card will be running in the background
 # changing 'state' can cause the recording to Pause, Resume, or Stop
+
+while(1)
+    if BUTTON.read():
+        LED.high()
+    else:
+        LED.low()
 
 print("starting recording for 5s")
 state = RECORD
-time.sleep(5)
+utime.sleep(5)
 print("pausing recording for 2s")
 state = PAUSE
-time.sleep(2)
+utime.sleep(2)
 print("resuming recording for 5s")
 state = RESUME
-time.sleep(5)
+utime.sleep(5)
 print("stopping recording and closing WAV file")
 state = STOP

@@ -28,11 +28,12 @@ def make_tone(rate, bits, frequency):
     return samples
 
 # ======= I2S CONFIGURATION =======
-
-SCK_PIN = 16
-WS_PIN = 17
-SD_PIN = 18
+SCK_PIN = 14    #PIN NMB 20
+WS_PIN = 15     #PIN NMB 19
+SD_PIN = 13     #PIN NMB 17
 I2S_ID = 0
+# ======= I2S CONFIGURATION =======
+
 BUFFER_LENGTH_IN_BYTES = 1000
 
 # ======= AUDIO CONFIGURATION =======

@@ -69,7 +69,7 @@ WAV_SAMPLE_SIZE_IN_BYTES = WAV_SAMPLE_SIZE_IN_BITS // 8
 LED = machine.Pin(0, machine.Pin.OUT)
 
 # GPIO_1 LED def here
-BUTTON = machine.Pin(1, machine.Pin.IN)
+BUTTON = machine.Pin(1, machine.Pin.IN, machine.Pin.PULL_UP)
 
 def create_wav_header(sampleRate, bitsPerSample, num_channels, num_samples):
     datasize = num_samples * num_channels * bitsPerSample // 8
@@ -172,11 +172,11 @@ num_read = audio_in.readinto(mic_samples_mv)
 # === Main program code goes here ===
 # changing 'state' can cause the recording to Pause, Resume, or Stop
 
-while(1)
-    if BUTTON.read():
-        LED.high()
+while True:
+    if not BUTTON.value():
+        LED.on()
     else:
-        LED.low()
+        LED.off()
 
 print("starting recording for 5s")
 state = RECORD

@@ -25,7 +25,7 @@
 
 
         }
-        #goBack{
+        #return{
             position: absolute;
             top: 32%;
             right: 2%;
@@ -34,12 +34,33 @@
             color: black;
             margin: 5%;
         }
+        #command_list{
+            position: absolute;
+            top: 22%;
+            font-size: 20px;
+            margin:10px;
+        }
     </style>
 </head>
 <body>
 <div class = "header">
-    <h1 id = "header">GO FIND OUT YOURSELF!</h1>
-    <a href="http://localhost:3000/home"  id="goBack">Go Back</a>
+    <h1 id = "header">LIST OF COMMANDS</h1>
+    <a href="http://localhost:3000/home"  id="return">Go Back</a>
+</div>
+
+<div id="command_list">
+    <li style="font-weight: bold">how are you</li>
+    <p>sends "how are you" through websocket and mqtt</p>
+    <li style="font-weight: bold">hi</li>
+    <p>sends "hi" through websocket and mqtt</p>
+    <li style="font-weight: bold">cao ni ma</li>
+    <p>You are cao ni maed</p>
+    <li style="font-weight: bold">your mom</li>
+    <p>Long's favourite joke</p>
+    <li style="font-weight: bold">Ronaldo</li>
+    <p>FINISHED</p>
+
+
 </div>
 
 </body>

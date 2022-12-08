@@ -140,7 +140,6 @@
     <a href="http://localhost:3000/logout"  id="logout">Logout</a>
 </div>
 
-<div class = "testing">
 
 </div>
 
@@ -320,16 +319,24 @@
 
         annyang.addCommands({
             'how are you': () => {
-                console.log("what the fuck ");
+                console.log("how are you");
                 SpeechKITT.abortRecognition();
                 onTimesUp();
-                socket.emit("datas","what the fuck");
-                },
+                socket.emit("datas","how are you" ,(message) =>{
+                    console.log(message);
+                    document.getElementById("message").innerText = message + "is successfully recorded!";
+                });
+            },
 
             'hi': () => {
-                console.log("Hi");
+                console.log("hi");
                 SpeechKITT.abortRecognition();
                 onTimesUp();
+                socket.emit("datas","hi",(message) =>{
+
+                    document.getElementById("message").innerText = message + " is successfully recorded!";
+
+                });
             }
         });
 
@@ -386,11 +393,7 @@
 
     }
 
-    // setInterval(function () {
-    //     fetch('/voice-data').then(tmp => tmp.json()).then(data => {
-    //         document.getElementById('mqtt-message').innerText = data;
-    //     })
-    // },1000);
+
 </script>
 </body>
 </html>

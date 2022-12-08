@@ -3,7 +3,7 @@ import io
 import utime
 from machine import I2S
 from machine import Pin
-from machine import timer
+from machine import Timer
 from RAMBlockDev import RAMBlockDev
     
 # ======= BOOT FILESYSTEM INTO RAM =======
@@ -93,12 +93,10 @@ def i2s_callback_rx(arg):
         # cleanup
         wav.close()
         print("Done closing the audio file")
-        os.umount("/ramdisk")
+        state = IDLE
+        """os.umount("/ramdisk")
         audio_in.deinit()
-        print("Done")
-    else:
-        print("Not a valid state.  State ignored")
-
+        print("Done")"""
 
 wav = open("/ramdisk/{}".format(WAV_FILE), "wb")
 pos = wav.seek(44)  # advance to first byte of Data section in WAV file

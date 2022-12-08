@@ -100,7 +100,7 @@ app.get('/logout', (req, res) => {
     }
     res.redirect('/');
 });
-app.get('/command',(req, res)=>{
+app.get('/commands',(req, res)=>{
     if(req.cookies.loggedIn === "false") return res.redirect('/');
     res.render('command');
 

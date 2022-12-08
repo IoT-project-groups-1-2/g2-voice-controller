@@ -147,11 +147,11 @@
 <div class = "header">
     <h1>SAY SOMETHING!</h1>
     <h6 id="username"></h6>
-    <a href="http://localhost:3000/logout"  id="logout">Logout</a>
+    <a href="/logout"  id="logout">Logout</a>
 </div>
 
 <div class = "command_list">
-    <a href="http://localhost:3000/command"  id="command">List Of Commands</a>
+    <a href="/commands"  id="command">List Of Commands</a>
 
 </div>
 
@@ -324,12 +324,18 @@
 
 
 
-
-
+<script src="../commands_list.js" type="text/javascript"/>
 
     if (annyang) {
-
-        annyang.addCommands({
+        commands.forEach(command => {
+            annyang.addCommands({command: () => {
+                    console.log(command);
+                    SpeechKITT.abortRecognition();
+                    onTimesUp();
+                    socket.emit("datas", command);
+                }})
+        })
+        /*annyang.addCommands({
             'how are you': () => {
                 console.log("how are you");
                 SpeechKITT.abortRecognition();
@@ -350,7 +356,7 @@
 
                 });
             }
-        });
+        });*/
 
 
 

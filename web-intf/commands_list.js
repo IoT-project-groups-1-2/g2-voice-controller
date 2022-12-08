@@ -1,0 +1,1 @@
+const commands = ["hello", "hi", "how are you", "your mom"];

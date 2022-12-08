@@ -100,7 +100,11 @@ app.get('/logout', (req, res) => {
     }
     res.redirect('/');
 });
+app.get('/command',(req, res)=>{
+    if(req.cookies.loggedIn === "false") return res.redirect('/');
+    res.render('command');
 
+})
 
 app.post('/signup', (req, res) => {
     const username = req.body.username;

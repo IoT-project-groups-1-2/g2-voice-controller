@@ -2,9 +2,13 @@
 <html lang="en">
 <script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+
+
+
 <style>
     body {
-        font-family: Arial;
+        font-family: "Courier New", sans-serif;
         background: lightblue ;
         margin:0;
     }
@@ -12,22 +16,49 @@
 
     p{
         font-size: 20px;
+        color: black;
+        position:absolute;
+        top: 30%;
     }
     .header {
+        position: absolute;
         padding: 30px;
         text-align: left;
         background: #1abc9c;
-        color: white;
+        color: black;
         font-size: 30px;
+        width: 100%;
+
+
+    }
+
+    h1{
+        float: left;
+    }
+    #username{
+        position: absolute;
+        top: -20%;
+        right:5%;
+        margin-right: 30px;
+
+    }
+    #logout{
+        position: absolute;
+        top: 75%;
+        right:5%;
+        margin-right: 30px;
+        font-family: "Courier New", sans-serif;
+        font-weight: bold;
+        color: black;
     }
 
     /* Sets the containers height and width */
     .base-timer {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 200px;
-        height: 200px;
+        top: 45%;
+        left: 45%;
+        width: 250px;
+        height: 250px;
 
 
     }
@@ -72,15 +103,28 @@
     }
 
     .base-timer__label {
+        font-weight: bold;
         position: absolute;
-        width: 200px;
-        height: 200px;
+        width: 250px;
+        height: 250px;
         top: 0%;
+        font-family: "Courier New", sans-serif;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: 45px;
     }
+    .base-timer-description{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-family: "Courier New", sans-serif;
+        font-weight: bold;
+        color: black;
+    }
+
+
 
 
 </style>
@@ -92,6 +136,8 @@
 
 <div class = "header">
     <h1>SAY SOMETHING!</h1>
+    <h6 id="username"></h6>
+    <a href="http://localhost:3000/logout"  id="logout">Logout</a>
 </div>
 
 <div class = "testing">
@@ -102,8 +148,20 @@
 <p id="message"></p>
 <p id="mqtt-message"></p>
 <p id="abort-message"></p>
-<div id="app"></div>
 
+<div id="app"></div>
+<script>
+    let socket = io();
+    socket.on('connection');
+    socket.on('settings', (data) => {
+        if (data.error === true) {
+            console.log("error!");
+        }else{
+            console.log(data);
+        }
+    });
+
+</script>
 <script>
     const FULL_DASH_ARRAY = 283;
     const WARNING_THRESHOLD = 7;
@@ -128,6 +186,18 @@
     let timeLeft = TIME_LIMIT;
     let timerInterval = null;
     let remainingPathColor = COLOR_CODES.info.color;
+    function getCookie(name) {
+        let usernameEQ = name + "=";
+        let ca = document.cookie.split(';');
+        for(let i=0;i < ca.length;i++) {
+            let c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(usernameEQ) == 0) return c.substring(usernameEQ.length,c.length);
+        }
+        return null;
+    }
+    let username = document.getElementById("username");
+    username.innerText = "You are now login as: " + getCookie("curr_user");
 
     document.getElementById("app").innerHTML = `
 <div class="base-timer">
@@ -150,6 +220,7 @@
   <span id="base-timer-label" class="base-timer__label">${formatTime(
         timeLeft
     )}</span>
+  <span id="base-timer-description" class="base-timer-description">Speak before the timer ends!</span>
 </div>
 `;
 
@@ -248,8 +319,18 @@
     if (annyang) {
 
         annyang.addCommands({
-            'hello': () => { document.getElementById('text').innerText = 'Hello';SpeechKITT.abortRecognition();onTimesUp(); },
-            'hi': () => { document.getElementById('text').innerText = 'Hi';SpeechKITT.abortRecognition();onTimesUp();}
+            'how are you': () => {
+                console.log("what the fuck ");
+                SpeechKITT.abortRecognition();
+                onTimesUp();
+                socket.emit("datas","what the fuck");
+                },
+
+            'hi': () => {
+                console.log("Hi");
+                SpeechKITT.abortRecognition();
+                onTimesUp();
+            }
         });
 
 
@@ -305,11 +386,11 @@
 
     }
 
-    setInterval(function () {
-        fetch('/voice-data').then(tmp => tmp.json()).then(data => {
-            document.getElementById('mqtt-message').innerText = data;
-        })
-    },1000);
+    // setInterval(function () {
+    //     fetch('/voice-data').then(tmp => tmp.json()).then(data => {
+    //         document.getElementById('mqtt-message').innerText = data;
+    //     })
+    // },1000);
 </script>
 </body>
 </html>

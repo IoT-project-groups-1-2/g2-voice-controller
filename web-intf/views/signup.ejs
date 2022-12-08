@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
@@ -66,6 +67,10 @@
         #login {
             margin: 15px;
         }
+        #togglePassword {
+            margin-left: -30px;
+            cursor: pointer;
+        }
     </style>
 
     <script type="text/javascript">
@@ -92,6 +97,7 @@
                    1 uppercase letter and 1 number,
                    and contain 8 characters at least and 30 at max"
                required>
+        <i class="far fa-eye" id="togglePassword"></i>
 
         <br/>
 
@@ -102,6 +108,18 @@
     </form>
 </div>
 
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
 
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye slash icon
+        this.classList.toggle('fa-eye-slash');
+    });
+
+</script>
 </body>
 </html>

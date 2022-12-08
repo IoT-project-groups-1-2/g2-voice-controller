@@ -3,8 +3,9 @@ import io
 import utime
 from machine import I2S
 from machine import Pin
+from machine import timer
 from RAMBlockDev import RAMBlockDev
-
+    
 # ======= BOOT FILESYSTEM INTO RAM =======
 bdev = RAMBlockDev(1024, 50)
 os.VfsLfs2.mkfs(bdev)
@@ -16,7 +17,7 @@ SCK_PIN = 16
 WS_PIN = 17
 SD_PIN = 18
 I2S_ID = 0
-BUFFER_LENGTH_IN_BYTES = 60000
+BUFFER_LENGTH_IN_BYTES = 20000
 # ======= I2S CONFIGURATION =======
 
 # ======= AUDIO CONFIGURATION =======
@@ -27,9 +28,8 @@ SAMPLE_RATE_IN_HZ = 44100
 # ======= AUDIO CONFIGURATION =======
 
 RECORD = 0
-PAUSE = 1
-RESUME = 2
-STOP = 3
+IDLE = 1
+STOP = 2
 
 format_to_channels = {I2S.MONO: 1, I2S.STEREO: 2}
 NUM_CHANNELS = format_to_channels[FORMAT]
@@ -61,6 +61,9 @@ def create_wav_header(sampleRate, bitsPerSample, num_channels, num_samples):
     return o
 
 
+def timercallback(t):
+    state = STOP
+
 def i2s_callback_rx(arg):
     global state
     global num_sample_bytes_written_to_wav
@@ -68,27 +71,15 @@ def i2s_callback_rx(arg):
     global num_read
 
     if state == RECORD:
-        LED.high()
         utime.sleep(0.5)
-        LED.low()
         num_bytes_written = wav.write(mic_samples_mv[:num_read])
         num_sample_bytes_written_to_wav += num_bytes_written
         # read samples from the I2S device.  This callback function
         # will be called after 'mic_samples_mv' has been completely filled
         # with audio samples
         num_read = audio_in.readinto(mic_samples_mv)
-    elif state == RESUME:
-        LED.high()
-        utime.sleep(0.5)
-        LED.low()
-        state = RECORD
-        num_read = audio_in.readinto(mic_samples_mv)
-    elif state == PAUSE:
-        LED.low()
-        # in the PAUSE state read audio samples from the I2S device
-        # but do not write the samples to file
-        num_read = audio_in.readinto(mic_samples_mv)
     elif state == STOP:
+        print("nig")
         LED.low()
         # create header for WAV file and write file
         wav_header = create_wav_header(
@@ -101,6 +92,7 @@ def i2s_callback_rx(arg):
         num_bytes_written = wav.write(wav_header)
         # cleanup
         wav.close()
+        print("Done closing the audio file")
         os.umount("/ramdisk")
         audio_in.deinit()
         print("Done")
@@ -129,26 +121,33 @@ audio_in.irq(i2s_callback_rx)
 
 # allocate sample arrays
 # memoryview used to reduce heap allocation in while loop
-mic_samples = bytearray(100)
+mic_samples = bytearray(1000)
 mic_samples_mv = memoryview(mic_samples)
 
 num_sample_bytes_written_to_wav = 0
+recording_seconds = 0
 
-state = PAUSE
+state = IDLE
 # start the background activity to read the microphone.
 # the callback will keep the activity continually running in the background.
 num_read = audio_in.readinto(mic_samples_mv)
 
+
 # === Main program code goes here ===
 # changing 'state' can cause the recording to Pause, Resume, or Stop
 
-while True:
-    if not BUTTON.value():
+
+while(True):
+    if not BUTTON.value() and STATE != STOP:
+        #periodic timer with 100ms interval
+        tim.init(mode=Timer.ONE_SHOT, period=100000, callback=timercallback)
         LED.on()
+        state = RECORD
     else:
         LED.off()
 
-print("starting recording for 5s")
+
+"""print("starting recording for 5s")
 state = RECORD
 utime.sleep(5)
 print("pausing recording for 2s")
@@ -159,3 +158,4 @@ state = RESUME
 utime.sleep(5)
 print("stopping recording and closing WAV file")
 state = STOP
+utime.sleep(2)"""

@@ -8,6 +8,7 @@ const mqtt = require('mqtt');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {hashPassword, verifyPassword} = require("./pbkdf2");
+const playlist = require("./api")
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -93,17 +94,6 @@ io.on('connection', (socket)=> {
     })
 });
 
-// app.get('/voice-data',(req, res) => {
-//
-//     client.on('message', (topic, msg) => {
-//         client.removeAllListeners();
-//         msg = msg.toString();
-//         console.log(msg);
-//         return res.json(msg);
-//     });
-//     // res.send("yolo");
-//
-// });
 
 
 app.get('/', async (req, res) => {
@@ -132,33 +122,13 @@ app.get('/commands',(req, res)=>{
     if(req.cookies.loggedIn === "false") return res.redirect('/');
     res.render('command');
 
+});
+
+app.get('/api/songs', async (req, res) => {
+    res.json(playlist.songs);
 })
 
-// app.get('/api/songs',(req, res) => {
-//     let test = [];
-//     MongoClient.connect(mongo_url, function (err, db) {
-//         if (err) reject("FAILED TO CONNECT TO DATABASE");
-//         const dbo = db.db("songs");
-//
-//         dbo.collection("songs").find({}).project( {Name:1,_id:0}).toArray( (err, res) => {
-//         });
-//
-//     })
-//     res.json(res);
-// });
-//
 
-// app.get('/api/songs',(req, res) => {
-//
-//
-//     MongoClient.connect(mongo_url, function (err, db) {
-//         const dbo = db.db("songs");
-//         dbo.collection("songs").insertMany(songs, function (err) {
-//             if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");
-//             db.close().then(r => console.log(r));
-//         });
-//     });
-// });
 app.post('/signup', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;

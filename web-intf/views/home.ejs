@@ -4,7 +4,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
 <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
 
-
 <style>
     body {
         font-family: "Courier New", sans-serif;
@@ -376,7 +375,7 @@
                 }
 
 
-            }else if (!SpeechKITT.isListening()){
+            } else if (!SpeechKITT.isListening()){
                 counts = 0;
                 isRecording = true;
                 if(running === 1){
@@ -387,19 +386,12 @@
             }
         }, 50);
 
-        
 
         // Define a stylesheet for KITT to use
         SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
 
         // Render KITT's interface
         SpeechKITT.vroom();
-
-
-
-
-
-
     }
 
 

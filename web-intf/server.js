@@ -106,6 +106,22 @@ app.get('/commands',(req, res)=>{
 
 })
 
+app.get('/api/songs',(req, res) => {
+    MongoClient.connect(mongo_url, function (err, db) {
+        if (err) reject("FAILED TO CONNECT TO DATABASE");
+        const dbo = db.db("songs");
+
+        dbo.collection("songs").find().toArray( (err, res) => {
+            console.log(res[0] + "Hello");
+        });
+        // const dbo = db.db("songs");
+        // let newSong = {Name: "hello"};
+        // dbo.collection("songs").insertOne(newSong, function (err) {
+        //     if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");
+        //     db.close().then(r => console.log(r));
+        // });
+    });
+});
 app.post('/signup', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -125,6 +141,7 @@ app.post('/signup', (req, res) => {
         res.redirect('/');
     });
 });
+
 
 app.post('/login', (req, res) => {
     const username = req.body.username;

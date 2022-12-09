@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+
+<style>
+    body {
+        font-family: "Courier New", sans-serif;
+        background: lightblue ;
+        margin:0;
+    }
+
+
+    p{
+        font-size: 20px;
+        color: black;
+        position:absolute;
+        top: 30%;
+    }
+    .header {
+        position: absolute;
+        padding: 30px;
+        text-align: left;
+        background: #1abc9c;
+        color: black;
+        font-size: 30px;
+        width: 100%;
+
+
+    }
+
+    h1{
+        float: left;
+    }
+    #username{
+        position: absolute;
+        top: -20%;
+        right:5%;
+        margin-right: 30px;
+
+    }
+    #logout{
+        position: absolute;
+        top: 75%;
+        right:5%;
+        margin-right: 30px;
+        font-family: "Courier New", sans-serif;
+        font-weight: bold;
+        color: black;
+    }
+
+    /* Sets the containers height and width */
+    .base-timer {
+        position: absolute;
+        top: 45%;
+        left: 45%;
+        width: 250px;
+        height: 250px;
+
+
+    }
+
+
+
+    .base-timer__svg {
+        transform: scaleX(-1);
+
+    }
+
+    .base-timer__circle {
+        fill: none;
+        stroke: none;
+    }
+
+    .base-timer__path-elapsed {
+        stroke-width: 7px;
+        stroke: grey;
+    }
+
+    .base-timer__path-remaining {
+        stroke-width: 7px;
+        stroke-linecap: round;
+        transform: rotate(90deg);
+        transform-origin: center;
+        transition: 1s linear all;
+        fill-rule: nonzero;
+        stroke: currentColor;
+    }
+
+    .base-timer__path-remaining.green {
+        /*color: rgb(65, 184, 131);*/
+        color: green;
+    }
+
+    .base-timer__path-remaining.orange {
+        color: orange;
+    }
+
+    .base-timer__path-remaining.red {
+        color: red;
+    }
+
+    .base-timer__label {
+        font-weight: bold;
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        top: 0%;
+        font-family: "Courier New", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+    }
+    .base-timer-description{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-family: "Courier New", sans-serif;
+        font-weight: bold;
+        color: black;
+    }
+    .command_list{
+        position: absolute;
+        top: 95%;
+        right: 2%;
+        font-size:20px;
+    }
+    #command{
+        color:black;
+    }
+
+
+
+
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Recording</title>
+</head>
+<body>
+
+<div class = "header">
+    <h1>SAY SOMETHING!</h1>
+    <h6 id="username"></h6>
+    <a href="/logout"  id="logout">Logout</a>
+</div>
+
+<div class = "command_list">
+    <a href="/commands"  id="command">List Of Commands</a>
+
+</div>
+
+<p id="text"></p>
+<p id="message"></p>
+<p id="mqtt-message"></p>
+<p id="abort-message"></p>
+
+<div id="app"></div>
+<script>
+    let socket = io();
+    socket.on('connection');
+    socket.on('settings', (data) => {
+        if (data.error === true) {
+            console.log("error!");
+        }else{
+            console.log(data);
+        }
+    });
+
+</script>
+<script>
+    const FULL_DASH_ARRAY = 283;
+    const WARNING_THRESHOLD = 7;
+    const ALERT_THRESHOLD = 3;
+
+    const COLOR_CODES = {
+        info: {
+            color: "green"
+        },
+        warning: {
+            color: "orange",
+            threshold: WARNING_THRESHOLD
+        },
+        alert: {
+            color: "red",
+            threshold: ALERT_THRESHOLD
+        }
+    };
+
+    const TIME_LIMIT = 10;
+    let timePassed = 0;
+    let timeLeft = TIME_LIMIT;
+    let timerInterval = null;
+    let remainingPathColor = COLOR_CODES.info.color;
+    function getCookie(name) {
+        let usernameEQ = name + "=";
+        let ca = document.cookie.split(';');
+        for(let i=0;i < ca.length;i++) {
+            let c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(usernameEQ) == 0) return c.substring(usernameEQ.length,c.length);
+        }
+        return null;
+    }
+    let username = document.getElementById("username");
+    username.innerText = "You are now login as: " + getCookie("curr_user");
+
+    document.getElementById("app").innerHTML = `
+<div class="base-timer">
+  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g class="base-timer__circle">
+      <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+      <path
+        id="base-timer-path-remaining"
+        stroke-dasharray="283"
+        class="base-timer__path-remaining ${remainingPathColor}"
+        d="
+          M 50, 50
+          m -45, 0
+          a 45,45 0 1,0 90,0
+          a 45,45 0 1,0 -90,0
+        "
+      ></path>
+    </g>
+  </svg>
+  <span id="base-timer-label" class="base-timer__label">${formatTime(
+        timeLeft
+    )}</span>
+  <span id="base-timer-description" class="base-timer-description">Speak before the timer ends!</span>
+</div>
+`;
+
+
+
+    function onTimesUp() {
+        clearInterval(timerInterval);
+        timeLeft = 10;
+        timePassed = 0;
+        setRemainingPathColor(timeLeft);
+        setCircleDasharray();
+        document.getElementById("base-timer-label").innerHTML = formatTime(
+            timeLeft
+        );
+        const { alert, warning, info } = COLOR_CODES;
+        document
+            .getElementById("base-timer-path-remaining")
+            .classList.remove(alert.color);
+        document
+            .getElementById("base-timer-path-remaining")
+            .classList.remove(warning.color);
+        document
+            .getElementById("base-timer-path-remaining")
+            .classList.add(info.color);
+
+
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timePassed = timePassed += 1;
+            timeLeft = TIME_LIMIT - timePassed;
+            document.getElementById("base-timer-label").innerHTML = formatTime(
+                timeLeft
+            );
+            setCircleDasharray();
+            setRemainingPathColor(timeLeft);
+
+            if (timeLeft === 0) {
+                onTimesUp();
+            }
+        }, 1000);
+    }
+
+    function formatTime(time) {
+        const minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        if (seconds < 10) {
+            seconds = `0${seconds}`;
+        }
+
+        return `${minutes}:${seconds}`;
+    }
+
+    function setRemainingPathColor(timeLeft) {
+        const { alert, warning, info } = COLOR_CODES;
+        if (timeLeft <= alert.threshold) {
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.remove(warning.color);
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.add(alert.color);
+        } else if (timeLeft <= warning.threshold) {
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.remove(info.color);
+            document
+                .getElementById("base-timer-path-remaining")
+                .classList.add(warning.color);
+        }
+    }
+
+    function calculateTimeFraction() {
+        const rawTimeFraction = timeLeft / TIME_LIMIT;
+        return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+    }
+
+    function setCircleDasharray() {
+        const circleDasharray = `${(
+            calculateTimeFraction() * FULL_DASH_ARRAY
+        ).toFixed(0)} 283`;
+        document
+            .getElementById("base-timer-path-remaining")
+            .setAttribute("stroke-dasharray", circleDasharray);
+    }
+
+    function jsonParser(stringValue) {
+        let value = [];
+        stringValue.forEach((item) => {
+            let string = JSON.stringify(item);
+            let objectValue = JSON.parse(string);
+            value.push(objectValue['Name']);
+        });
+
+        return value;
+
+    }
+
+
+
+
+
+
+// function sendSong(number) {
+//      const songList = getSongList();
+//         socket.emit("songs", songList[number]['Name']);
+//         console.log(songList[number]['Name']);
+//
+// }
+
+   // function getSongList(number){
+   //  return new Promise((resolve, reject) => {
+   //      socket.on("songList", (arg) => {
+   //          // return arg[number]['Name'];
+   //          console.log(arg[number]['Name'])
+   //          //sendSong(arg[number]['Name'])
+   //          // socket.emit("songs", arg[number]['Name']);
+   //          resolve(arg[number]["Name"])
+   //      })
+   //  })
+
+
+
+
+    // function getSongList(tag){
+    //
+    //         socket.on("songList", (arg) => {
+    //             // return arg[number]['Name'];
+    //            console.log(arg[tag]['Name'])
+    //             //sendSong(arg[number]['Name'])
+    //             // socket.emit("songs", arg[number]['Name']);
+    //             // transport.on("number",() => {
+    //             //     console.log(arg[this.number]["Name"]);
+    //             // })
+    //
+    //         })
+    // }
+
+
+
+    //console.log(song);
+    let test;
+    socket.on("songList", (arg) => {
+        test = arg;
+    });
+
+
+
+
+
+    const getSongList = function(tag){
+        console.log(test);
+        // console.log(tag);
+        // socket.on("songList", (arg) => {
+            // return arg[number]['Name'];
+            console.log(test[tag]['Name'])
+            //sendSong(arg[number]['Name'])
+            socket.emit("songs", test[tag]['Name']);
+            // transport.on("number",() => {
+            //     console.log(arg[this.number]["Name"]);
+            // })
+
+        // })
+        onTimesUp();
+        annyang.abort();
+
+    }
+
+
+
+
+
+
+    if (annyang) {
+        let commands = {
+            'play song *tag': getSongList
+        };
+        annyang.addCommands(commands,false);
+        SpeechKITT.annyang();
+        // annyang.addCommands({
+            // 'play song one': () => {
+            //     console.log("Song 1 is playing!");
+            //     SpeechKITT.abortRecognition();
+
+                // getSongList(0, (song) =>{
+                //     socket.emit("songs", song)
+                // })
+
+                // sendSong(0);
+                // socket.emit("datas","how are you" ,(message) =>{
+                //     console.log(message);
+                //     document.getElementById("message").innerText = message + "is successfully recorded!";
+               // });
+            // },
+
+            // 'play song *tag': (tag) => {
+            //     console.log(tag);
+            //     socket.on("songList", (arg) => {
+            //         // return arg[number]['Name'];
+            //         console.log(arg[1]['Name'])
+            //         //sendSong(arg[number]['Name'])
+            //         // socket.emit("songs", arg[number]['Name']);
+            //         // transport.on("number",() => {
+            //         //     console.log(arg[this.number]["Name"]);
+            //         // })
+            //
+            //     })
+            // }
+        // });
+
+
+
+
+
+        let isRecording = true;
+        let running = 0;
+        let counts = 0;
+        setInterval(() => {
+
+            if(SpeechKITT.isListening()) {
+                counts += 1;
+                if(isRecording === true){
+                    isRecording = false;
+                    startTimer();
+                    running += 1;
+
+                }
+
+                if(counts >= 10000/50){
+                        SpeechKITT.abortRecognition();
+
+                        isRecording = true;
+                        onTimesUp();
+                        counts = 0;
+                }
+
+
+            } else if (!SpeechKITT.isListening()){
+                counts = 0;
+                isRecording = true;
+                if(running === 1){
+                    running = 0;
+                    onTimesUp();
+                }
+
+            }
+        }, 50);
+
+
+        // Define a stylesheet for KITT to use
+        SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+
+        // Render KITT's interface
+        SpeechKITT.vroom();
+    }
+
+
+</script>
+</body>
+</html>

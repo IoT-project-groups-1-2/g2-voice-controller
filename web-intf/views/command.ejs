@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign Up</title>
+    <style>
+        body {
+            font-family: "Courier New", sans-serif;
+            background: lightblue ;
+            margin:0;
+        }
+
+        h1{
+            font-family: "Courier New", sans-serif;
+            font-size: 60px;
+        }
+        .header {
+            position: absolute;
+            padding: 30px;
+            text-align: left;
+            background: #1abc9c;
+            color: black;
+            font-size: 30px;
+            width: 100%;
+
+
+        }
+        #return{
+            position: absolute;
+            top: 32%;
+            right: 2%;
+            font-family: "Courier New", sans-serif;
+            font-weight: bold;
+            color: black;
+            margin: 5%;
+        }
+        #command_list{
+            position: absolute;
+            top: 22%;
+            font-size: 20px;
+            margin:10px;
+        }
+    </style>
+</head>
+<body>
+<div class = "header">
+    <h1 id = "header">LIST OF COMMANDS</h1>
+    <a href="http://localhost:3000/home"  id="return">Go Back</a>
+</div>
+
+<div id="command_list">
+    <li style="font-weight: bold">how are you</li>
+    <p>sends "how are you" through websocket and mqtt</p>
+    <li style="font-weight: bold">hi</li>
+    <p>sends "hi" through websocket and mqtt</p>
+    <li style="font-weight: bold">cao ni ma</li>
+    <p>You are cao ni maed</p>
+    <li style="font-weight: bold">your mom</li>
+    <p>Long's favourite joke</p>
+    <li style="font-weight: bold">Ronaldo</li>
+    <p>FINISHED</p>
+
+
+</div>
+
+</body>

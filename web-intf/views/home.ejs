@@ -318,39 +318,133 @@
             .setAttribute("stroke-dasharray", circleDasharray);
     }
 
+    function jsonParser(stringValue) {
+        let value = [];
+        stringValue.forEach((item) => {
+            let string = JSON.stringify(item);
+            let objectValue = JSON.parse(string);
+            value.push(objectValue['Name']);
+        });
+
+        return value;
+
+    }
+
+
+
+
+
+
+// function sendSong(number) {
+//      const songList = getSongList();
+//         socket.emit("songs", songList[number]['Name']);
+//         console.log(songList[number]['Name']);
+//
+// }
+
+   // function getSongList(number){
+   //  return new Promise((resolve, reject) => {
+   //      socket.on("songList", (arg) => {
+   //          // return arg[number]['Name'];
+   //          console.log(arg[number]['Name'])
+   //          //sendSong(arg[number]['Name'])
+   //          // socket.emit("songs", arg[number]['Name']);
+   //          resolve(arg[number]["Name"])
+   //      })
+   //  })
+
+
+
+
+    // function getSongList(tag){
+    //
+    //         socket.on("songList", (arg) => {
+    //             // return arg[number]['Name'];
+    //            console.log(arg[tag]['Name'])
+    //             //sendSong(arg[number]['Name'])
+    //             // socket.emit("songs", arg[number]['Name']);
+    //             // transport.on("number",() => {
+    //             //     console.log(arg[this.number]["Name"]);
+    //             // })
+    //
+    //         })
+    // }
+
+
+
+    //console.log(song);
+    let test;
+    socket.on("songList", (arg) => {
+        test = arg;
+    });
+
+
+
+
+
+    const getSongList = function(tag){
+        console.log(test);
+        // console.log(tag);
+        // socket.on("songList", (arg) => {
+            // return arg[number]['Name'];
+            console.log(test[tag]['Name'])
+            //sendSong(arg[number]['Name'])
+            socket.emit("songs", test[tag]['Name']);
+            // transport.on("number",() => {
+            //     console.log(arg[this.number]["Name"]);
+            // })
+
+        // })
+        onTimesUp();
+        annyang.abort();
+
+    }
+
 
 
 
 
 
     if (annyang) {
-
-        annyang.addCommands({
-            'how are you': () => {
-                console.log("how are you");
-                SpeechKITT.abortRecognition();
-                onTimesUp();
-                socket.emit("datas","how are you" ,(message) =>{
-                    console.log(message);
-                    document.getElementById("message").innerText = message + "is successfully recorded!";
-                });
-            },
-
-            'hi': () => {
-                console.log("hi");
-                SpeechKITT.abortRecognition();
-                onTimesUp();
-                socket.emit("datas","hi",(message) =>{
-
-                    document.getElementById("message").innerText = message + " is successfully recorded!";
-
-                });
-            }
-        });
-
-
-
+        let commands = {
+            'play song *tag': getSongList
+        };
+        annyang.addCommands(commands,false);
         SpeechKITT.annyang();
+        // annyang.addCommands({
+            // 'play song one': () => {
+            //     console.log("Song 1 is playing!");
+            //     SpeechKITT.abortRecognition();
+
+                // getSongList(0, (song) =>{
+                //     socket.emit("songs", song)
+                // })
+
+                // sendSong(0);
+                // socket.emit("datas","how are you" ,(message) =>{
+                //     console.log(message);
+                //     document.getElementById("message").innerText = message + "is successfully recorded!";
+               // });
+            // },
+
+            // 'play song *tag': (tag) => {
+            //     console.log(tag);
+            //     socket.on("songList", (arg) => {
+            //         // return arg[number]['Name'];
+            //         console.log(arg[1]['Name'])
+            //         //sendSong(arg[number]['Name'])
+            //         // socket.emit("songs", arg[number]['Name']);
+            //         // transport.on("number",() => {
+            //         //     console.log(arg[this.number]["Name"]);
+            //         // })
+            //
+            //     })
+            // }
+        // });
+
+
+
+
 
         let isRecording = true;
         let running = 0;

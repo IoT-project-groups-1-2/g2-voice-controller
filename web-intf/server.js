@@ -65,6 +65,34 @@ io.on('connection', (socket)=> {
     })
 });
 
+
+//S
+io.on('connection', (socket)=> {
+    console.log("User " + socket.id + " connected");
+    MongoClient.connect(mongo_url, function (err, db) {
+        if (err) reject("FAILED TO CONNECT TO DATABASE");
+        const dbo = db.db("songs");
+
+        dbo.collection("songs").find({}).project( {Name:1,_id:0}).toArray( (err, res) => {
+            io.emit('songList',res);
+        });
+
+    })
+
+});
+
+//Send a particular song to MQTT
+io.on('connection', (socket)=> {
+    socket.on("songs",(arg)=>{
+        client.publish(settings_topic, arg, {qos: 0, retain: false}, (error) => {
+            console.log(arg + " published to:" + settings_topic);
+            if (error) {
+                console.error(error);
+            }
+        })
+    })
+});
+
 // app.get('/voice-data',(req, res) => {
 //
 //     client.on('message', (topic, msg) => {
@@ -98,7 +126,7 @@ app.get('/logout', (req, res) => {
         res.cookie("curr_user", "");
         res.cookie("loggedIn", false);
     }
-    res.redirect('/');
+    res.redirect('/home');
 });
 app.get('/commands',(req, res)=>{
     if(req.cookies.loggedIn === "false") return res.redirect('/');
@@ -106,22 +134,31 @@ app.get('/commands',(req, res)=>{
 
 })
 
-app.get('/api/songs',(req, res) => {
-    MongoClient.connect(mongo_url, function (err, db) {
-        if (err) reject("FAILED TO CONNECT TO DATABASE");
-        const dbo = db.db("songs");
+// app.get('/api/songs',(req, res) => {
+//     let test = [];
+//     MongoClient.connect(mongo_url, function (err, db) {
+//         if (err) reject("FAILED TO CONNECT TO DATABASE");
+//         const dbo = db.db("songs");
+//
+//         dbo.collection("songs").find({}).project( {Name:1,_id:0}).toArray( (err, res) => {
+//         });
+//
+//     })
+//     res.json(res);
+// });
+//
 
-        dbo.collection("songs").find().toArray( (err, res) => {
-            console.log(res[0] + "Hello");
-        });
-        // const dbo = db.db("songs");
-        // let newSong = {Name: "hello"};
-        // dbo.collection("songs").insertOne(newSong, function (err) {
-        //     if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");
-        //     db.close().then(r => console.log(r));
-        // });
-    });
-});
+// app.get('/api/songs',(req, res) => {
+//
+//
+//     MongoClient.connect(mongo_url, function (err, db) {
+//         const dbo = db.db("songs");
+//         dbo.collection("songs").insertMany(songs, function (err) {
+//             if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");
+//             db.close().then(r => console.log(r));
+//         });
+//     });
+// });
 app.post('/signup', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -206,8 +243,6 @@ const addUser = (newUser) => {
         });
     });
 }
-
-
 
 
 

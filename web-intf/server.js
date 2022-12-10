@@ -27,21 +27,25 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Defining constants
 const PORT = process.env.PORT || 3000;
-const broker_url = 'mqtt://127.0.0.1:1883';
+// const broker_url = 'mqtt://127.0.0.1:1883';
+const broker_url = 'mqtt://broker.hivemq.com:1883';
 const mongo_url = 'mongodb://localhost:27017';
 const client = mqtt.connect(broker_url, { clientId: 'node', clean: true });
-const settings_topic = "controller/settings";
-const status_topic = "controller/status";
-
+// const settings_topic = "controller/settings";
+// const status_topic = "controller/status";
+const test_topic = "test";
 client.on('connect', ()=>{
     console.log('MQTT client connected: '+ client.connected);
 });
-client.subscribe(status_topic, () => {
-    console.log("subscribed to " + status_topic);
-});
-
-client.subscribe(settings_topic, () => {
-    console.log("subscribed to " + settings_topic);
+// client.subscribe(status_topic, () => {
+//     console.log("subscribed to " + status_topic);
+// });
+//
+// client.subscribe(settings_topic, () => {
+//     console.log("subscribed to " + settings_topic);
+// });
+client.subscribe(test_topic, () => {
+    console.log("subscribed to " + test_topic);
 });
 
 io.on('connection', (socket)=> {
@@ -50,6 +54,7 @@ io.on('connection', (socket)=> {
         client.removeAllListeners();
         msg = msg.toString();
         io.emit('settings',msg);
+        console.log(msg + "received");
         console.log(msg+ " sent through websocket");
     })
 
@@ -57,8 +62,8 @@ io.on('connection', (socket)=> {
 
 io.on('connection', (socket)=> {
     socket.on("datas",(arg)=>{
-            client.publish(settings_topic, arg, {qos: 0, retain: false}, (error) => {
-                console.log(arg + " published to:" + settings_topic);
+            client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
+                console.log(arg + " published to: " + test_topic);
                 if (error) {
                     console.error(error);
                 }
@@ -85,8 +90,8 @@ io.on('connection', (socket)=> {
 //Send a particular song to MQTT
 io.on('connection', (socket)=> {
     socket.on("songs",(arg)=>{
-        client.publish(settings_topic, arg, {qos: 0, retain: false}, (error) => {
-            console.log(arg + " published to:" + settings_topic);
+        client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
+            console.log(arg + " published to:" + test_topic);
             if (error) {
                 console.error(error);
             }

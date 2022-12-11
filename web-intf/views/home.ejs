@@ -129,7 +129,7 @@
         right: 2%;
         font-size:20px;
     }
-    #song{
+    #song,#add{
         color:black;
     }
 
@@ -161,6 +161,7 @@
 
 </div>
 <div class = "song_list">
+    <a href="/add" id="add">Add A Song</a>
     <a href="/commands"  id="song">List Of Songs</a>
 
 </div>
@@ -353,6 +354,7 @@
     let song = [];
     fetch('/api/songs').then(res=>res.json()).then(list => {
         song = list;
+        console.log(song)
     });
 
     function str_to_num(tag){

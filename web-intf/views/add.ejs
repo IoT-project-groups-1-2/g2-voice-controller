@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: "Courier New", sans-serif;
+            background: lightblue ;
+            margin:0;
+        }
+
+
+        .header {
+            position: absolute;
+            padding: 30px;
+            text-align: left;
+            background: #1abc9c;
+            color: black;
+            font-size: 30px;
+            width: 100%;
+
+
+        }
+        #add-form{
+            position: absolute;
+            top: 45%;
+            left:33%;
+        }
+        input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 0 5px;
+            height: 40px;
+            font-size: 16px;
+            background: none;
+            outline: none;
+        }
+
+    </style>
+<body>
+<div class = "header">
+    <h1 id = "header">ADD A SONG</h1>
+    <a href="http://localhost:3000/home"  id="return">Go Back</a>
+</div>
+<form id="add-form" method="post" action="/add/song">
+    <label for="name-input">Song Name</label>
+    <input id="name-input" type="text" name="name" placeholder="Name Of Song" required>
+    <label for="rtttl-input">RTTTL</label>
+    <input id="rtttl-input" type="text" name="rtttl" placeholder="RTTTL" required>
+    <input type="submit" value="Add a new song">
+</form>
+
+</body>

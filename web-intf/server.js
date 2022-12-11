@@ -12,8 +12,10 @@ const playlist = require("./api")
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const fs = require("fs");
 const io = new Server(server);
 const MongoClient = require('mongodb').MongoClient;
+
 
 
 
@@ -54,7 +56,7 @@ io.on('connection', (socket)=> {
         client.removeAllListeners();
         msg = msg.toString();
         io.emit('settings',msg);
-        console.log(msg + "received");
+        console.log(msg + " received");
         console.log(msg+ " sent through websocket");
     })
 
@@ -130,9 +132,22 @@ app.get('/commands',(req, res)=>{
 });
 
 app.get('/api/songs', async (req, res) => {
-    res.json(playlist.songs);
+    fs.readFile("songs.json",(err,data)=> {
+        let songList = JSON.parse(data.toString());
+        for(let i=0;i<songList.length;i++){
+            if(songList[i].id > playlist.songs.length){
+                playlist.songs.push(songList[i]);
+            }
+        }
+        res.json(playlist.songs);
+    });
+
 })
 
+app.get('/add', async (req, res) => {
+    if(req.cookies.loggedIn === "false") return res.redirect('/');
+    res.render('add');
+})
 
 app.post('/signup', (req, res) => {
     const username = req.body.username;
@@ -194,6 +209,36 @@ app.post('/login', (req, res) => {
             }
         });
     });
+});
+
+app.post('/add/song', (req, res) => {
+    const name = req.body.name;
+    const rtttl = req.body.rtttl;
+    console.log(name,rtttl);
+
+
+
+    fs.readFile("songs.json",(err,data)=>{
+        let songList = JSON.parse(data.toString());
+        console.log(playlist.songs.length);
+        console.log(songList.length);
+        let id;s
+        if(songList.length === 0){
+             id = (73+1).toString();
+        }else {
+             id = (73+songList.length+1).toString();
+        }
+
+        const newSong = {Name : name, rtttl : rtttl, id: id };
+
+        songList.push(newSong);
+
+    fs.writeFile("songs.json", JSON.stringify(songList), (err) => {
+        if (err)
+            console.log(err);
+    });
+    res.redirect('/commands');
+    })
 });
 
 server.listen(PORT);

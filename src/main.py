@@ -8,9 +8,10 @@ import urequests
 import random
 import credentials as creds
 from umqtt.simple import MQTTClient
+import _thread
+import json
 
-def irqHandler(pin):
-    speaker.deinit()
+
 
 
 """
@@ -18,7 +19,6 @@ Pins configs
 """
 led = Pin(6, Pin.OUT)
 shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
-shuffle_btn.irq(trigger=Pin.IRQ_RISING, handler=irqHandler)
 
 c_btn = Pin(2, Pin.IN)
 g_btn = Pin(3, Pin.IN)
@@ -52,27 +52,41 @@ wlan.active(True)
 wlan.connect(creds.ssid, creds.password)
 print('Wifi connected', wlan.isconnected())
 
-def fetch_playlist():
-    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
-    return res
-    
 
 mqtt_server = 'broker.hivemq.com'
 client_id = 'PicoW'
-user_t = creds.mqtt_usr
-password_t = creds.mqtt_password
-topic_pub = 'songs'
+topic_pub = 'rtttl/dtw'
+topic_sub = 'rtttl/wtd'
 
-last_message = 0
-message_interval = 5
-counter = 0
+
+
+lock = _thread.allocate_lock()
+
 
 def mqtt_connect():
-    client = MQTTClient(client_id, mqtt_server, user=user_t, password=password_t, keepalive=60)
+    client = MQTTClient(client_id, mqtt_server, user=creds.mqtt_usr, password=creds.mqtt_password, keepalive=60)
     client.connect()
     print('Connected to %s MQTT Broker'%(mqtt_server))
-    
     return client
+
+
+def mqtt_cb(topic, msg):
+    print("Received ", msg)
+    if msg is "":
+        return 0
+    json_msg = json.loads(msg)
+    print(json_msg)
+    playTrack(json_msg)
+
+def irqHandler(pin):
+    speaker.deinit()
+
+
+def fetch_playlist():
+    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
+    return res
+
+
 
 
 
@@ -86,24 +100,43 @@ def play_tone(freq, msec):
 
 
 
+shuffle_btn.irq(trigger=Pin.IRQ_FALLING, handler=irqHandler)
+playlist = fetch_playlist()
+nr_of_songs = len(playlist)
+client = mqtt_connect()
+
+
+def mqttTask():
+    client.set_callback(mqtt_cb)
+    client.subscribe(topic_sub)
+    while True:	
+        lock.acquire()
+        lcd.clear()
+        lcd.putstr("Waiting for commands :)")
+        client.check_msg()
+        print("DONE WAITING!")
+        lock.release()
+        
+_thread.start_new_thread(mqttTask, ())
+    
+
 # Defining main function
 def loop():
-    shuffle_btn.irq(trigger=Pin.IRQ_FALLING, handler=irqHandler)
-    playlist = fetch_playlist()
-    nr_of_songs = len(playlist)
-    client = mqtt_connect()
-    while True: 
+    while True:
+        lock.acquire()
         rand_index = random.choice(range(0, nr_of_songs - 1))
-        lcd.clear()
-        lcd.putstr(playlist[rand_index]["Name"])
-        client.publish(topic_pub, "Playing " + playlist[rand_index]["Name"])
-        tune = RTTTL(playlist[rand_index]["rtttl"])
-        led.value(1)
-        for freq, msec in tune.notes():
-            play_tone(freq, msec)
-        led.value(0)
-        lcd.clear()
-        sleep_ms(3000)
+        playTrack(playlist[rand_index])
+        lock.release()
+        
+def playTrack(track_json):
+    lcd.clear()
+    lcd.putstr(track_json["Name"])
+    client.publish(topic_pub, "Playing " + track_json["Name"])
+    tune = RTTTL(track_json["rtttl"])
+    led.value(1)
+    for freq, msec in tune.notes():
+        play_tone(freq, msec)
+    led.value(0)
 
 
 

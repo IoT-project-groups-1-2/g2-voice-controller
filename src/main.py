@@ -9,11 +9,17 @@ import random
 import credentials as creds
 from umqtt.simple import MQTTClient
 
+def irqHandler(pin):
+    speaker.deinit()
+
+
 """
 Pins configs
 """
 led = Pin(6, Pin.OUT)
-shuffle_btn = Pin(1, Pin.IN)
+shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
+shuffle_btn.irq(trigger=Pin.IRQ_RISING, handler=irqHandler)
+
 c_btn = Pin(2, Pin.IN)
 g_btn = Pin(3, Pin.IN)
 am_btn = Pin(4, Pin.IN)
@@ -21,6 +27,7 @@ f_btn = Pin(5, Pin.IN)
 oct_up = Pin(18, Pin.IN)
 oct_down = Pin(20, Pin.IN)
 speaker = PWM(Pin(0))
+
 
 
 
@@ -43,18 +50,18 @@ Network config
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 wlan.connect(creds.ssid, creds.password)
-print(wlan.isconnected())
+print('Wifi connected', wlan.isconnected())
 
 def fetch_playlist():
-    res = urequests.get("https://api.npoint.io/7a1f386d7c2ca53aded3").json()
+    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
     return res
-
+    
 
 mqtt_server = 'broker.hivemq.com'
 client_id = 'PicoW'
 user_t = creds.mqtt_usr
 password_t = creds.mqtt_password
-topic_pub = 'test'
+topic_pub = 'songs'
 
 last_message = 0
 message_interval = 5
@@ -81,6 +88,7 @@ def play_tone(freq, msec):
 
 # Defining main function
 def loop():
+    shuffle_btn.irq(trigger=Pin.IRQ_FALLING, handler=irqHandler)
     playlist = fetch_playlist()
     nr_of_songs = len(playlist)
     client = mqtt_connect()
@@ -88,7 +96,7 @@ def loop():
         rand_index = random.choice(range(0, nr_of_songs - 1))
         lcd.clear()
         lcd.putstr(playlist[rand_index]["Name"])
-        client.publish(topic_pub, "Playing" + playlist[rand_index]["Name"])
+        client.publish(topic_pub, "Playing " + playlist[rand_index]["Name"])
         tune = RTTTL(playlist[rand_index]["rtttl"])
         led.value(1)
         for freq, msec in tune.notes():

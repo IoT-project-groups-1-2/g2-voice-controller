@@ -142,7 +142,6 @@
 
 
 
-
 </style>
 <head>
     <meta charset="UTF-8">
@@ -174,11 +173,10 @@
 <script>
     let socket = io();
     socket.on('connection');
-    socket.on('settings', (data) => {
+    socket.on('receives', (data) => {
         if (data.error === true) {
             console.log("error!");
         }else{
-            console.log(data);
             document.getElementById("now_playing").innerText = "Now " + data;
         }
     });
@@ -357,38 +355,36 @@
         song = list;
     });
 
-    function str_to_num(tag){
-        if(tag === "One"){
+    function str_to_num(songID){
+        if(songID === "One"){
             return 1;
         }
-        if(tag === "free"){
+        if(songID === "free"){
             return 3;
         }
-        if(tag === "for"){
+        if(songID === "for"){
             return 4;
         }
-        if(tag === "five"){
+        if(songID === "five"){
             return 5;
         }
-        if(tag === "sex"){
+        if(songID === "sex"){
             return 6;
         }
-        if(tag === "seven"){
+        if(songID === "seven"){
             return 7;
         }
-        if(tag === "eight"){
+        if(songID === "eight"){
             return 8;
         }
-        return tag;
+        return songID;
     }
 
-    const getSongList = function(tag){
-            tag = str_to_num(tag);
-            console.log(song[(tag-1)]['Name'])
+    const getSongList = function(songID){
+            songID = str_to_num(songID);
 
-            document.getElementById("now_playing").innerText = "Now Playing Song " + tag +" : " + song[(tag-1)]['Name'] ;
-            // socket.emit("songs", song[tag]['Name']);
-            socket.emit("songs", song[(tag-1)]['rtttl']);
+            document.getElementById("now_playing").innerText = "Now Playing Song " + songID +" : " + song[(songID-1)]['Name'] ;
+            socket.emit("songs", song[(songID-1)]['rtttl']);
 
         onTimesUp();
         annyang.abort();
@@ -402,7 +398,7 @@
 
     if (annyang) {
         let commands = {
-            'play song *tag': getSongList
+            'play song *songID': getSongList
         };
         annyang.addCommands(commands,false);
         SpeechKITT.annyang();

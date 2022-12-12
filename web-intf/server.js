@@ -33,64 +33,21 @@ const broker_url = 'mqtt://broker.hivemq.com:1883';
 const mongo_url = 'mongodb://localhost:27017';
 const client = mqtt.connect(broker_url, { clientId: 'node', clean: true });
 
-const test_topic = "test";
+const test_topic = "songs";
 
 client.on('connect', ()=>{
     console.log('MQTT client connected: '+ client.connected);
+    client.subscribe(test_topic, () => {
+        console.log("subscribed to " + test_topic);
+    });
 });
 
-client.subscribe(test_topic, () => {
-    console.log("subscribed to " + test_topic);
-});
+
 
 io.on('connection', (socket)=> {
     let logged = false;
     console.log("User " + socket.id + " connected");
-    setInterval(() => {
-        client.on('message', (topic, msg) => {
 
-            if(!logged)
-            {   client.removeAllListeners();
-                msg = msg.toString();
-                io.emit('settings', msg);
-                console.log(msg + " received & sent through websocket");
-                logged = true;
-            }
-
-        })
-
-    }, 100);
-
-});
-
-io.on('connection', (socket)=> {
-    socket.on("datas",(arg)=>{
-            client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
-                console.log(arg + " published to: " + test_topic);
-                if (error) {
-                    console.error(error);
-                }
-            })
-    })
-});
-
-
-//S
-// io.on('connection', (socket)=> {
-//     MongoClient.connect(mongo_url, function (err, db) {
-//         if (err) reject("FAILED TO CONNECT TO DATABASE");
-//         const dbo = db.db("songs");
-//
-//         dbo.collection("songs").find({}).project( {Name:1,_id:0}).toArray( (err, res) => {
-//             io.emit('songList',res);
-//         });
-//
-//     })
-//
-// });
-
-//Send a particular song to MQTT
-io.on('connection', (socket)=> {
     socket.on("songs",(arg)=>{
         client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
             console.log(arg + " published to:" + test_topic);
@@ -99,7 +56,30 @@ io.on('connection', (socket)=> {
             }
         })
     })
+
+    setInterval(() => {
+        client.on('message', (topic, msg) => {
+
+            msg =
+                msg.toString();
+                io.emit('receive', msg);
+                console.log(msg + " received & sent through websocket");
+                logged =
+                    true;
+            client.removeAllListeners();
+        });
+    },5000)
+
+
+
+
 });
+
+
+//Send a particular song to MQTT
+// io.on('connection', (socket)=> {
+//
+// });
 
 
 
@@ -132,15 +112,7 @@ app.get('/commands',(req, res)=>{
 });
 
 app.get('/api/songs', async (req, res) => {
-    // fs.readFile("songs.json",(err,data)=> {
-    //     let songList = JSON.parse(data.toString());
-    //     for(let i=0;i<songList.length;i++){
-    //         if(songList[i].id > playlist.songs.length){
-    //             playlist.songs.push(songList[i]);
-    //         }
-    //     }
-         res.json(playlist);
-    // });
+    res.json(playlist);
 
 })
 
@@ -222,18 +194,6 @@ app.post('/add/song', (req, res) => {
     addSong(newSong);
     res.redirect('/commands');
 
-
-    // fs.readFile("songs.json",(err,data)=>{
-    //     let songList = JSON.parse(data.toString());
-    //
-    //     songList.push(newSong);
-    //
-    //     fs.writeFile("songs.json", JSON.stringify(songList), (err) => {
-    //         if (err)
-    //             console.log(err);
-    //     });
-    //     res.redirect('/commands');
-    // });
 });
 
 server.listen(PORT);

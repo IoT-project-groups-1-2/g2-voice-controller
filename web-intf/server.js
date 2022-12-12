@@ -8,12 +8,13 @@ const mqtt = require('mqtt');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {hashPassword, verifyPassword} = require("./pbkdf2");
-const playlist = require("./api")
+const {playlist, addSong} = require("./api")
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const MongoClient = require('mongodb').MongoClient;
+
 
 
 
@@ -27,72 +28,58 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Defining constants
 const PORT = process.env.PORT || 3000;
-const broker_url = 'mqtt://127.0.0.1:1883';
+// const broker_url = 'mqtt://127.0.0.1:1883';
+const broker_url = 'mqtt://broker.hivemq.com:1883';
 const mongo_url = 'mongodb://localhost:27017';
 const client = mqtt.connect(broker_url, { clientId: 'node', clean: true });
-const settings_topic = "controller/settings";
-const status_topic = "controller/status";
+
+const test_topic = "songs";
 
 client.on('connect', ()=>{
     console.log('MQTT client connected: '+ client.connected);
-});
-client.subscribe(status_topic, () => {
-    console.log("subscribed to " + status_topic);
+    client.subscribe(test_topic, () => {
+        console.log("subscribed to " + test_topic);
+    });
 });
 
-client.subscribe(settings_topic, () => {
-    console.log("subscribed to " + settings_topic);
-});
+
 
 io.on('connection', (socket)=> {
+    let logged = false;
     console.log("User " + socket.id + " connected");
-    client.on('message', (topic, msg) => {
-        client.removeAllListeners();
-        msg = msg.toString();
-        io.emit('settings',msg);
-        console.log(msg+ " sent through websocket");
-    })
 
-});
-
-io.on('connection', (socket)=> {
-    socket.on("datas",(arg)=>{
-            client.publish(settings_topic, arg, {qos: 0, retain: false}, (error) => {
-                console.log(arg + " published to:" + settings_topic);
-                if (error) {
-                    console.error(error);
-                }
-            })
-    })
-});
-
-
-//S
-io.on('connection', (socket)=> {
-    console.log("User " + socket.id + " connected");
-    MongoClient.connect(mongo_url, function (err, db) {
-        if (err) reject("FAILED TO CONNECT TO DATABASE");
-        const dbo = db.db("songs");
-
-        dbo.collection("songs").find({}).project( {Name:1,_id:0}).toArray( (err, res) => {
-            io.emit('songList',res);
-        });
-
-    })
-
-});
-
-//Send a particular song to MQTT
-io.on('connection', (socket)=> {
     socket.on("songs",(arg)=>{
-        client.publish(settings_topic, arg, {qos: 0, retain: false}, (error) => {
-            console.log(arg + " published to:" + settings_topic);
+        client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
+            console.log(arg + " published to:" + test_topic);
             if (error) {
                 console.error(error);
             }
         })
     })
+
+    setInterval(() => {
+        client.on('message', (topic, msg) => {
+
+            msg =
+                msg.toString();
+                io.emit('receive', msg);
+                console.log(msg + " received & sent through websocket");
+                logged =
+                    true;
+            client.removeAllListeners();
+        });
+    },5000)
+
+
+
+
 });
+
+
+//Send a particular song to MQTT
+// io.on('connection', (socket)=> {
+//
+// });
 
 
 
@@ -125,9 +112,14 @@ app.get('/commands',(req, res)=>{
 });
 
 app.get('/api/songs', async (req, res) => {
-    res.json(playlist.songs);
+    res.json(playlist);
+
 })
 
+app.get('/add', async (req, res) => {
+    if(req.cookies.loggedIn === "false") return res.redirect('/');
+    res.render('add');
+})
 
 app.post('/signup', (req, res) => {
     const username = req.body.username;
@@ -189,6 +181,19 @@ app.post('/login', (req, res) => {
             }
         });
     });
+});
+
+app.post('/add/song', (req, res) => {
+    const name = req.body.name;
+    const rtttl = req.body.rtttl;
+    console.log(name,rtttl);
+    console.log(playlist.length);
+    let id;
+    id = playlist.length + 1;
+    const newSong = {Name : name, rtttl : rtttl, id: id };
+    addSong(newSong);
+    res.redirect('/commands');
+
 });
 
 server.listen(PORT);

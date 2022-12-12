@@ -122,16 +122,23 @@
         font-weight: bold;
         color: black;
     }
-    .command_list{
+    .song_list{
         position: absolute;
         top: 95%;
         right: 2%;
         font-size:20px;
     }
-    #command{
+    #song,#add{
         color:black;
     }
 
+    .song_recorded{
+        text-align: center;
+        position: absolute;
+        top:25%;
+        left:35%;
+        font-size: 35px;
+    }
 
 
 
@@ -147,9 +154,13 @@
     <h6 id="username"></h6>
     <a href="/logout"  id="logout">Logout</a>
 </div>
+<div class= "song_recorded">
+    <h5 id = "now_playing"></h5>
 
-<div class = "command_list">
-    <a href="/commands"  id="command">List Of Commands</a>
+</div>
+<div class = "song_list">
+    <a href="/add" id="add">Add A Song</a>
+    <a href="/commands"  id="song">List Of Songs</a>
 
 </div>
 
@@ -162,16 +173,18 @@
 <script>
     let socket = io();
     socket.on('connection');
-    socket.on('settings', (data) => {
+    socket.on('receives', (data) => {
         if (data.error === true) {
             console.log("error!");
         }else{
-            console.log(data);
+            document.getElementById("now_playing").innerText = "Now " + data;
         }
     });
 
+
 </script>
 <script>
+
     const FULL_DASH_ARRAY = 283;
     const WARNING_THRESHOLD = 7;
     const ALERT_THRESHOLD = 3;
@@ -335,66 +348,44 @@
 
 
 
-// function sendSong(number) {
-//      const songList = getSongList();
-//         socket.emit("songs", songList[number]['Name']);
-//         console.log(songList[number]['Name']);
-//
-// }
-
-   // function getSongList(number){
-   //  return new Promise((resolve, reject) => {
-   //      socket.on("songList", (arg) => {
-   //          // return arg[number]['Name'];
-   //          console.log(arg[number]['Name'])
-   //          //sendSong(arg[number]['Name'])
-   //          // socket.emit("songs", arg[number]['Name']);
-   //          resolve(arg[number]["Name"])
-   //      })
-   //  })
 
 
-
-
-    // function getSongList(tag){
-    //
-    //         socket.on("songList", (arg) => {
-    //             // return arg[number]['Name'];
-    //            console.log(arg[tag]['Name'])
-    //             //sendSong(arg[number]['Name'])
-    //             // socket.emit("songs", arg[number]['Name']);
-    //             // transport.on("number",() => {
-    //             //     console.log(arg[this.number]["Name"]);
-    //             // })
-    //
-    //         })
-    // }
-
-
-
-    //console.log(song);
-    let test;
-    socket.on("songList", (arg) => {
-        test = arg;
+    let song = [];
+    fetch('/api/songs').then(res=>res.json()).then(list => {
+        song = list;
     });
 
+    function str_to_num(songID){
+        if(songID === "One"){
+            return 1;
+        }
+        if(songID === "free"){
+            return 3;
+        }
+        if(songID === "for"){
+            return 4;
+        }
+        if(songID === "five"){
+            return 5;
+        }
+        if(songID === "sex"){
+            return 6;
+        }
+        if(songID === "seven"){
+            return 7;
+        }
+        if(songID === "eight"){
+            return 8;
+        }
+        return songID;
+    }
 
+    const getSongList = function(songID){
+            songID = str_to_num(songID);
 
+            document.getElementById("now_playing").innerText = "Now Playing Song " + songID +" : " + song[(songID-1)]['Name'] ;
+            socket.emit("songs", song[(songID-1)]['rtttl']);
 
-
-    const getSongList = function(tag){
-        console.log(test);
-        // console.log(tag);
-        // socket.on("songList", (arg) => {
-            // return arg[number]['Name'];
-            console.log(test[tag]['Name'])
-            //sendSong(arg[number]['Name'])
-            socket.emit("songs", test[tag]['Name']);
-            // transport.on("number",() => {
-            //     console.log(arg[this.number]["Name"]);
-            // })
-
-        // })
         onTimesUp();
         annyang.abort();
 
@@ -407,44 +398,10 @@
 
     if (annyang) {
         let commands = {
-            'play song *tag': getSongList
+            'play song *songID': getSongList
         };
         annyang.addCommands(commands,false);
         SpeechKITT.annyang();
-        // annyang.addCommands({
-            // 'play song one': () => {
-            //     console.log("Song 1 is playing!");
-            //     SpeechKITT.abortRecognition();
-
-                // getSongList(0, (song) =>{
-                //     socket.emit("songs", song)
-                // })
-
-                // sendSong(0);
-                // socket.emit("datas","how are you" ,(message) =>{
-                //     console.log(message);
-                //     document.getElementById("message").innerText = message + "is successfully recorded!";
-               // });
-            // },
-
-            // 'play song *tag': (tag) => {
-            //     console.log(tag);
-            //     socket.on("songList", (arg) => {
-            //         // return arg[number]['Name'];
-            //         console.log(arg[1]['Name'])
-            //         //sendSong(arg[number]['Name'])
-            //         // socket.emit("songs", arg[number]['Name']);
-            //         // transport.on("number",() => {
-            //         //     console.log(arg[this.number]["Name"]);
-            //         // })
-            //
-            //     })
-            // }
-        // });
-
-
-
-
 
         let isRecording = true;
         let running = 0;

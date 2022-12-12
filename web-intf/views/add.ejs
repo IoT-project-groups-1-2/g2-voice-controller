@@ -39,6 +39,23 @@
             background: none;
             outline: none;
         }
+        #error{
+            position: absolute;
+            top: 34%;
+            left: 30%;
+            font-size: 20px;
+
+        }
+
+        #return{
+            position: absolute;
+            top: 32%;
+            right: 0%;
+            font-family: "Courier New", sans-serif;
+            font-weight: bold;
+            color: black;
+            margin: 5%;
+        }
 
     </style>
 <body>
@@ -46,12 +63,28 @@
     <h1 id = "header">ADD A SONG</h1>
     <a href="http://localhost:3000/home"  id="return">Go Back</a>
 </div>
-<form id="add-form" method="post" action="/add/song">
+<span id="error"></span>
+<form id="add-form" method="post" action="/add/song" onsubmit= "return useRegex();">
     <label for="name-input">Song Name</label>
     <input id="name-input" type="text" name="name" placeholder="Name Of Song" required>
     <label for="rtttl-input">RTTTL</label>
     <input id="rtttl-input" type="text" name="rtttl" placeholder="RTTTL" required>
-    <input type="submit" value="Add a new song">
+
+    <input type="submit" value="Add a new song" onclick="useRegex()">
 </form>
 
+<script>
+    function useRegex() {
+        const error = document.getElementById("error");
+        let regex = /^.*:.*:.*$/i;
+        let rtttl = document.getElementById("rtttl-input").value;
+        if (!regex.test(rtttl)){
+            error.textContent = "Please enter a valid format for rtttl : It should contains two colons"
+            error.style.color = "red"
+        }else{
+            error.textContent = "";
+        }
+        return regex.test(rtttl);
+    }
+</script>
 </body>

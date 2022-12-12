@@ -3,7 +3,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
 <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
-<!--<script type = "text/javascript" src="file://../api.js"></script>-->
 
 <style>
     body {
@@ -180,8 +179,10 @@
             console.log("error!");
         }else{
             console.log(data);
+            document.getElementById("now_playing").innerText = "Now " + data;
         }
     });
+
 
 </script>
 <script>
@@ -354,7 +355,6 @@
     let song = [];
     fetch('/api/songs').then(res=>res.json()).then(list => {
         song = list;
-        console.log(song)
     });
 
     function str_to_num(tag){
@@ -383,9 +383,7 @@
     }
 
     const getSongList = function(tag){
-        console.log(tag)
             tag = str_to_num(tag);
-            console.log(tag)
             console.log(song[(tag-1)]['Name'])
 
             document.getElementById("now_playing").innerText = "Now Playing Song " + tag +" : " + song[(tag-1)]['Name'] ;
@@ -408,27 +406,6 @@
         };
         annyang.addCommands(commands,false);
         SpeechKITT.annyang();
-        // annyang.addCommands({
-            // 'play song one': () => {
-            //     console.log("Song 1 is playing!");
-            //     SpeechKITT.abortRecognition();
-
-                // getSongList(0, (song) =>{
-                //     socket.emit("songs", song)
-                // })
-
-                // sendSong(0);
-                // socket.emit("datas","how are you" ,(message) =>{
-                //     console.log(message);
-                //     document.getElementById("message").innerText = message + "is successfully recorded!";
-               // });
-            // },
-
-
-
-
-
-
 
         let isRecording = true;
         let running = 0;

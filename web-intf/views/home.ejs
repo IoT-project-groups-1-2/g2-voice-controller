@@ -3,6 +3,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
 <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.1/socket.io.min.js.map"></script>
 
 <style>
     body {
@@ -157,6 +158,7 @@
 <div class= "song_recorded">
     <h5 id = "now_playing"></h5>
 
+
 </div>
 <div class = "song_list">
     <a href="/add" id="add">Add A Song</a>
@@ -173,11 +175,17 @@
 <script>
     let socket = io();
     socket.on('connection');
-    socket.on('receives', (data) => {
+    socket.on('rtttl', (data) => {
         if (data.error === true) {
             console.log("error!");
         }else{
-            document.getElementById("now_playing").innerText = "Now " + data;
+            if(data === undefined && data === null && data.constructor === "test".constructor){
+                document.getElementById("now_playing").innerText = "Now playing: " + data
+            }else{
+                data = JSON.parse(data)
+                document.getElementById("now_playing").innerText = "Now playing: " + data.Name;
+            }
+
         }
     });
 
@@ -384,7 +392,7 @@
             songID = str_to_num(songID);
 
             document.getElementById("now_playing").innerText = "Now Playing Song " + songID +" : " + song[(songID-1)]['Name'] ;
-            socket.emit("songs", song[(songID-1)]['rtttl']);
+            socket.emit("songs", JSON.stringify(song[(songID-1)]));
 
         onTimesUp();
         annyang.abort();

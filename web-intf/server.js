@@ -31,60 +31,57 @@ const PORT = process.env.PORT || 3000;
 // const broker_url = 'mqtt://127.0.0.1:1883';
 const broker_url = 'mqtt://broker.hivemq.com:1883';
 const mongo_url = 'mongodb://localhost:27017';
-const client = mqtt.connect(broker_url, { clientId: 'node', clean: true });
+const client = mqtt.connect(broker_url);
 
-const test_topic = "songs";
+const web_topic = "rtttl/wtd";
+const device_topic = "rtttl/dtw";
 
-client.on('connect', ()=>{
-    console.log('MQTT client connected: '+ client.connected);
-    client.subscribe(test_topic, () => {
-        console.log("subscribed to " + test_topic);
-    });
+client.on('connect', function(){
+    // console.log("hi")
+    client.subscribe(web_topic);
+    client.subscribe(device_topic);
+    console.log("Subscribed to both topics");
+        // if(client.connected){
+        //     console.log('MQTT client connected: ' + client.connected);
+        //     client.subscribe(web_topic, () => {
+        //         console.log("subscribed to " + web_topic);
+        //     });
+        //         client.subscribe(device_topic,{qos : 0})
+        // }
+
 });
 
 
 
-io.on('connection', (socket)=> {
-    let logged = false;
+io.on('connection', (socket) => {
     console.log("User " + socket.id + " connected");
+    setInterval(() => {
+        client.on('message', (topic, msg) => {
+            client.removeAllListeners();
+            msg =
+                msg.toString();
+            io.emit('rtttl', msg);
+            console.log(msg + " received & sent through websocket");
+        });
 
-    socket.on("songs",(arg)=>{
-        client.publish(test_topic, arg, {qos: 0, retain: false}, (error) => {
-            console.log(arg + " published to:" + test_topic);
+    }, 8000)
+
+
+    socket.on("songs", (arg) => {
+        client.publish(web_topic, arg, {qos: 0, retain: false}, (error) => {
+            console.log(arg + " published to:" + web_topic);
             if (error) {
                 console.error(error);
             }
         })
     })
-
-    setInterval(() => {
-        client.on('message', (topic, msg) => {
-
-            msg =
-                msg.toString();
-                io.emit('receive', msg);
-                console.log(msg + " received & sent through websocket");
-                logged =
-                    true;
-            client.removeAllListeners();
-        });
-    },5000)
-
-
-
-
 });
-
-
-//Send a particular song to MQTT
-// io.on('connection', (socket)=> {
-//
-// });
 
 
 
 app.get('/', async (req, res) => {
     res.render("login");
+
 });
 
 app.get('/signup', (req, res) => {

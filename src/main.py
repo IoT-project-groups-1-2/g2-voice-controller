@@ -19,13 +19,6 @@ Pins configs
 """
 led = Pin(6, Pin.OUT)
 shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
-
-c_btn = Pin(2, Pin.IN)
-g_btn = Pin(3, Pin.IN)
-am_btn = Pin(4, Pin.IN)
-f_btn = Pin(5, Pin.IN)
-oct_up = Pin(18, Pin.IN)
-oct_down = Pin(20, Pin.IN)
 speaker = PWM(Pin(0))
 
 
@@ -58,7 +51,7 @@ client_id = 'PicoW'
 topic_pub = 'rtttl/dtw'
 topic_sub = 'rtttl/wtd'
 
-
+current_track = None;
 
 lock = _thread.allocate_lock()
 
@@ -71,19 +64,15 @@ def mqtt_connect():
 
 
 def mqtt_cb(topic, msg):
-    print("Received ", msg)
-    if msg is "":
-        return 0
-    json_msg = json.loads(msg)
-    print(json_msg)
-    playTrack(json_msg)
+    print("Received {} from topic {}".format(str(msg, "UTF-8"), str(topic, "UTF-8")))
+    global current_track
+    current_track = json.loads(msg)
 
-def irqHandler(pin):
-    speaker.deinit()
+
 
 
 def fetch_playlist():
-    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
+    res = urequests.get("http://192.168.121.69:3000/api/songs").json()
     return res
 
 
@@ -100,7 +89,6 @@ def play_tone(freq, msec):
 
 
 
-shuffle_btn.irq(trigger=Pin.IRQ_FALLING, handler=irqHandler)
 playlist = fetch_playlist()
 nr_of_songs = len(playlist)
 client = mqtt_connect()
@@ -112,9 +100,9 @@ def mqttTask():
     while True:	
         lock.acquire()
         lcd.clear()
-        lcd.putstr("Waiting for commands :)")
+        lcd.putstr("Play a song on me")
         client.check_msg()
-        print("DONE WAITING!")
+        print("WAITING AGAIN :(")
         lock.release()
         
 _thread.start_new_thread(mqttTask, ())
@@ -124,8 +112,12 @@ _thread.start_new_thread(mqttTask, ())
 def loop():
     while True:
         lock.acquire()
-        rand_index = random.choice(range(0, nr_of_songs - 1))
-        playTrack(playlist[rand_index])
+        global current_track
+        if current_track is not None:
+            print("HEH")
+            lcd.putstr(current_track["Name"])
+            playTrack(current_track)
+        current_track = None;
         lock.release()
         
 def playTrack(track_json):

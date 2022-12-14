@@ -16,10 +16,13 @@ import json
 """
 Pins configs
 """
-led = Pin(6, Pin.OUT)
-shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
-speaker = PWM(Pin(0))
 
+speaker = PWM(Pin(0))
+shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
+up_btn = Pin(2, Pin.IN, Pin.PULL_DOWN)
+ok_btn = Pin(3, Pin.IN, Pin.PULL_DOWN)
+down_btn = Pin(4, Pin.IN, Pin.PULL_DOWN)
+led = Pin(6, Pin.OUT)
 
 """
 I2C LCD CONFIG
@@ -43,6 +46,7 @@ topic_sub = 'rtttl/wtd'
 
 
 current_track = None;
+index = 69;
 lock = _thread.allocate_lock()
 
 
@@ -124,9 +128,6 @@ def mqttTask():
     client.subscribe(topic_sub)
     while True:	
         lock.acquire()
-        lcd.clear()
-        lcd.putstr("Waiting for commands")
-        print("Checking message in queue")
         client.check_msg()
         lock.release()
         
@@ -141,11 +142,38 @@ def loop():
     """
     while True:
         lock.acquire()
+        global playlist
         global current_track
+        global index
         if current_track is not None:
             lcd.putstr(current_track["Name"])
             client.publish(topic_pub, "Playing " + current_track["Name"])
             playTrack(current_track)
+        else:
+            index_changed = False
+            if up_btn.value() is 1:
+                print("ROBIN KOOL")
+                index_changed = True
+                if index is 0:
+                    index = len(playlist) - 1
+                else:
+                    index -= 1
+            if down_btn.value() is 1:
+                print("RUSSELL VAN DULKEN")
+                index_changed = True
+                if index is len(playlist) - 1:
+                    index = 0
+                else:
+                    index += 1
+            if ok_btn.value() is 1:
+                current_track = playlist[index]
+
+            if index_changed:
+                lcd.clear()
+                lcd.putstr(playlist[index]["Name"][0:16])
+                lcd.move_to(0, 1)
+                lcd.putstr("UP    OK    DOWN")
+
         current_track = None;
         lock.release()
         

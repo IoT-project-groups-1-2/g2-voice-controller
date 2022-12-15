@@ -138,7 +138,7 @@ _thread.start_new_thread(mqttTask, ())
 
 def loop():
     """
-    Main task, checking if a track is on queue, play track and display information
+    Main task, checking if a track is on queue, play track, else put on LCD menu
     """
     while True:
         lock.acquire()
@@ -167,7 +167,7 @@ def loop():
 
             if index_changed:
                 lcd.clear()
-                lcd.putstr(playlist[index]["Name"][0:16])
+                lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
                 lcd.move_to(0, 1)
                 lcd.putstr("UP    OK    DOWN")
         lcd.putstr(current_track["Name"])

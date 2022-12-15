@@ -11,10 +11,11 @@ const {hashPassword, verifyPassword} = require("./pbkdf2");
 const {playlist, addSong} = require("./api")
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
+const fs = require("fs");
+const songs = require("./songs.json");
 const io = new Server(server);
 const MongoClient = require('mongodb').MongoClient;
-
 
 
 /* MIDDLEWARES */
@@ -23,9 +24,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-
-
 
 
 /* DEFINING CONSTRAINTS */
@@ -39,21 +37,20 @@ const device_topic = "rtttl/dtw";
 const mod_topic = "rtttl/mod"
 
 
-
 // CONNECTING TO THE MQTT SERVER AND SUBSCRIBING TO THE TOPICS
-client.on('connect', function(){
+client.on('connect', function () {
     // console.log("hi")
     client.subscribe(web_topic);
     client.subscribe(device_topic);
     client.subscribe(mod_topic);
     console.log("Subscribed to all topics");
-        // if(client.connected){
-        //     console.log('MQTT client connected: ' + client.connected);
-        //     client.subscribe(web_topic, () => {
-        //         console.log("subscribed to " + web_topic);
-        //     });
-        //         client.subscribe(device_topic,{qos : 0})
-        // }
+    // if(client.connected){
+    //     console.log('MQTT client connected: ' + client.connected);
+    //     client.subscribe(web_topic, () => {
+    //         console.log("subscribed to " + web_topic);
+    //     });
+    //         client.subscribe(device_topic,{qos : 0})
+    // }
 
 });
 
@@ -92,20 +89,20 @@ app.get('/', async (req, res) => {
 
 //Rendering to the signup page
 app.get('/signup', (req, res) => {
-    if(req.cookies.loggedIn === "true") return res.redirect('/home');
+    if (req.cookies.loggedIn === "true") return res.redirect('/home');
     res.render('signup');
 });
 
 //Rendering to the home page
 app.get('/home', (req, res) => {
-    if(req.cookies.loggedIn === "false") return res.redirect('/');
+    if (req.cookies.loggedIn === "false") return res.redirect('/');
     res.render('home');
 });
 
 
 //logout route and redirects to the login page
 app.get('/logout', (req, res) => {
-    if(req.cookies.loggedIn === "true") {
+    if (req.cookies.loggedIn === "true") {
         res.cookie("curr_user", "");
         res.cookie("loggedIn", false);
     }
@@ -113,8 +110,8 @@ app.get('/logout', (req, res) => {
 });
 
 //Rendering to the songlist page
-app.get('/commands',(req, res)=>{
-    if(req.cookies.loggedIn === "false") return res.redirect('/');
+app.get('/commands', (req, res) => {
+    if (req.cookies.loggedIn === "false") return res.redirect('/');
     res.render('command');
 
 });
@@ -127,10 +124,9 @@ app.get('/api/songs', async (req, res) => {
 
 //Rendering to the add page to add songs
 app.get('/add', async (req, res) => {
-    if(req.cookies.loggedIn === "false") return res.redirect('/');
+    if (req.cookies.loggedIn === "false") return res.redirect('/');
     res.render('add');
 })
-
 
 
 //Post method to check if the user data duplicates the data in the database
@@ -139,8 +135,7 @@ app.post('/signup', (req, res) => {
     const password = req.body.password;
     hashPassword(password).then(hashedPassword => {
         const newUser = {username, hashedPassword};
-        addUser(newUser).
-        then(msg => {
+        addUser(newUser).then(msg => {
             res.cookie("login_err", 201);
             res.redirect('/');
         })
@@ -155,27 +150,26 @@ app.post('/signup', (req, res) => {
 });
 
 
-
-
 //post method to check if the login credentials match the data in the database.
 
 app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    let query_obj = { username: username };
-    MongoClient.connect(mongo_url, function(err, db) {
+    let query_obj = {username: username};
+    MongoClient.connect(mongo_url, function (err, db) {
         if (err) throw err;
         const dbo = db.db("users");
         dbo.collection("users").find(query_obj).toArray((err, user_arr) => {
             const user = user_arr[0];
-            if(user !== undefined) {
+            if (user !== undefined) {
                 //checking if the inputted password matches the password from the database
                 verifyPassword(password, user.hashedPassword)
                     .then((equal) => {
 
-                        if(equal) {
-                            res.statusCode = 200;
-                            if(req.cookies.curr_user !== user.username) {
+                        if (equal) {
+                            res.statusCode =
+                                200;
+                            if (req.cookies.curr_user !== user.username) {
                                 res.cookie("curr_user", user.username);
                                 res.cookie("loggedIn", true);
 
@@ -204,24 +198,51 @@ app.post('/login', (req, res) => {
 app.post('/add/song', (req, res) => {
     const name = req.body.name;
     const rtttl = req.body.rtttl;
-    console.log(name,rtttl);
-    console.log(playlist.length);
-    let id;
-    id = playlist.length + 1;
-    const newSong = {Name : name, rtttl : rtttl, id: id };
-    client.publish(mod_topic, JSON.stringify(newSong), {qos: 0, retain: false}, (error) => {
-        console.log(newSong + " published to:" + mod_topic);
+    const id = Number(songs[songs.length-1].id) + 1;
+    const newSong = {Name: name, rtttl: rtttl, id: String(id) };
+
+    addSong(newSong);
+    client.publish(mod_topic, JSON.stringify(songs), {qos: 0, retain: false}, (error) => {
+        console.log("New Song published to:" + mod_topic);
         if (error) {
             console.error(error);
         }
     })
-    addSong(newSong);
     res.redirect('/commands');
 
 });
 
-server.listen(PORT) ;
+app.delete('/:id', async (req, res) => {
 
+    console.log(req.params.id);
+    for (let i = 0; i < songs.length; ++i) {
+        if (String(songs[i].id) === req.params.id) {
+            songs.splice(i, 1);
+            console.log(songs)
+            fs.writeFile("songs.json", JSON.stringify(songs), (err) => {
+                if (err)
+                    console.log(err);
+
+            });
+
+            client.publish(mod_topic, JSON.stringify(songs), {qos: 0, retain: false}, (error) => {
+                console.log("Song deleted and send to: " + mod_topic);
+                if (error) {
+                    console.error(error);
+                }
+            })
+            res.statusCode = 200 ;
+            return res.end();
+        }
+    }
+
+
+
+    res.statusCode = 401;
+    return res.end();
+});
+
+server.listen(PORT);
 
 
 const addUser = (newUser) => {
@@ -230,8 +251,8 @@ const addUser = (newUser) => {
             if (err) reject("FAILED TO CONNECT TO DATABASE");
             const dbo = db.db("users");
 
-            dbo.collection("users").find({username: newUser.username}).toArray( (err, res) => {
-                if(res[0] !== undefined) reject("USERNAME ALREADY TAKEN");
+            dbo.collection("users").find({username: newUser.username}).toArray((err, res) => {
+                if (res[0] !== undefined) reject("USERNAME ALREADY TAKEN");
                 else {
                     dbo.collection("users").insertOne(newUser, function (err) {
                         if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");

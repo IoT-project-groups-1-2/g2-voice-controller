@@ -39,11 +39,11 @@
         #songContainer{
             position: absolute;
             top: 21%;
-            right: 38%;
+            right: 28%;
             align-content: center;
             counter-reset: index;
             padding: 0;
-            max-width: 500px;
+            max-width: 1000px;
             margin:10px;
             font-size: 25px;
             display: inline;
@@ -53,33 +53,35 @@
             counter-increment: index;
             display: flex;
             align-items: center;
-            padding: 12px 0;
+            padding: 1px 0;
             box-sizing: border-box;
             list-style-type: "SONG";
-            display: inline;
+            display: inline-block;
         }
+
         ul{
-            margin: 0px;
+            margin: 5px;
             list-style-type: "SONG";
         }
 
 
         /* Element counter */
-        li::before {
+        /*li::before {*/
 
-            content: counters(index, ".", decimal-leading-zero);
-            font-size: 1.5rem;
-            text-align: right;
-            font-weight: bold;
-            min-width: 50px;
-            padding-right: 12px;
-            font-variant-numeric: tabular-nums;
-            align-self: flex-start;
-            background-image: linear-gradient(to bottom, blueviolet, orangered);
-            background-attachment: fixed;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        /*    content: counters(index, ".", decimal-leading-zero);*/
+        /*    font-size: 1.5rem;*/
+        /*    text-align: right;*/
+        /*    font-weight: bold;*/
+        /*    min-width: 20px;*/
+        /*    padding-right: 12px;*/
+        /*    font-variant-numeric: tabular-nums;*/
+        /*    align-self: flex-start;*/
+        /*    background-image: linear-gradient(to bottom, blueviolet, orangered);*/
+        /*    background-attachment: fixed;*/
+        /*    -webkit-background-clip: text;*/
+        /*    -webkit-text-fill-color: transparent;*/
+        /*    display: inline-block;*/
+        /*}*/
 
 
         /* Element separation */
@@ -113,7 +115,6 @@
             list.forEach(song => {
                 if(song.id == songObj) {
                     socket.emit("songs", JSON.stringify(song));
-                    console.log(song);
                     window.location.href =
                         "/home";
                 }
@@ -123,7 +124,36 @@
 
         });
     }
+
+    function deleteSong(songID){
+        const songToDelete = document.getElementById(songID);
+        const songContainer = document.getElementById("songContainer");
+        const binToDelete = document.getElementById("trashBin" + songID);
+        if (confirm('Are you sure you want to delete this song?')) {
+            console.log("hi");
+            fetch('/' + songID, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                       songToDelete.parentNode.removeChild(songToDelete);
+                       binToDelete.parentNode.removeChild(binToDelete);
+                    } else {
+                        return Promise.reject(res.text());
+                        console.log("hi");
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+    }
+
     fetch('/api/songs').then(res=>res.json()).then(list => {
+        list.sort ((a,b)=>{
+            return a.id - b.id;
+        })
         list.forEach(song =>{
             let songName = song.Name;
             let songId = song.id;
@@ -132,13 +162,17 @@
             const songElement = document.createElement('div');
             songElement.id = "abc";
             const songContainer = document.getElementById("songContainer");
+            let songState = false;
             songElement.innerHTML = `
                         <div class="songs" >
                             <ul>
-                            <li style="font-weight: bold; border-top: 1px solid black;" onclick="playSong(${song.id})">${songName}</li>
-                            <i class="fa fa-trash-o"></i>
+                            <li style="font-weight: bold; border-top: 1px solid black; width: 800px;" onclick="playSong(${song.id})" id = "${song.id}">${song.id}.${songName}</li>
+                            <i class="fa fa-trash-o" id="trashBin${song.id}" onclick="deleteSong(${song.id})"></i>
                         </div>
                    `;
+            if(songState == true){
+                console.log("hi");
+            }
             songContainer.appendChild(songElement);
         })
 

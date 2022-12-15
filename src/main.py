@@ -97,7 +97,7 @@ def fetch_playlist():
     Returns:
         res (dict): Returns a dictionary containing songs
     """
-    res = urequests.get("http://192.168.121.69:3000/api/songs").json()
+    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
     return res
 
 
@@ -145,11 +145,7 @@ def loop():
         global playlist
         global current_track
         global index
-        if current_track is not None:
-            lcd.putstr(current_track["Name"])
-            client.publish(topic_pub, "Playing " + current_track["Name"])
-            playTrack(current_track)
-        else:
+        while current_track is None:
             index_changed = False
             if up_btn.value() is 1:
                 print("ROBIN KOOL")
@@ -166,6 +162,7 @@ def loop():
                 else:
                     index += 1
             if ok_btn.value() is 1:
+                print("Finn Andersen")
                 current_track = playlist[index]
 
             if index_changed:
@@ -173,6 +170,9 @@ def loop():
                 lcd.putstr(playlist[index]["Name"][0:16])
                 lcd.move_to(0, 1)
                 lcd.putstr("UP    OK    DOWN")
+        lcd.putstr(current_track["Name"])
+        client.publish(topic_pub, "Playing " + current_track["Name"])
+        playTrack(current_track)
 
         current_track = None;
         lock.release()

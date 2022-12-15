@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <head>
 <meta charset="UTF-8">
 <title>Sign Up</title>
@@ -44,6 +46,7 @@
             max-width: 500px;
             margin:10px;
             font-size: 25px;
+            display: inline;
         }
 
         li {
@@ -53,6 +56,7 @@
             padding: 12px 0;
             box-sizing: border-box;
             list-style-type: "SONG";
+            display: inline;
         }
         ul{
             margin: 0px;
@@ -101,17 +105,38 @@
 </body>
 
 <script>
+    function playSong(songObj) {
+        let socket = io();
+        socket.on('connection');
+        // socket.emit("songs", JSON.stringify(songObj));
+        fetch('/api/songs').then(res => res.json()).then(list => {
+            list.forEach(song => {
+                if(song.id == songObj) {
+                    socket.emit("songs", JSON.stringify(song));
+                    console.log(song);
+                    window.location.href =
+                        "/home";
+                }
+            });
+
+
+
+        });
+    }
     fetch('/api/songs').then(res=>res.json()).then(list => {
         list.forEach(song =>{
             let songName = song.Name;
             let songId = song.id;
-            console.log(songId + songName);
-            const songElement = document.createElement('a');
+            let songRtttl = song.rtttl;
+            const songObj = {songName, songId, songRtttl};
+            const songElement = document.createElement('div');
+            songElement.id = "abc";
             const songContainer = document.getElementById("songContainer");
             songElement.innerHTML = `
                         <div class="songs" >
                             <ul>
-                            <li style="font-weight: bold; border-top: 1px solid black;">${songName}</li>
+                            <li style="font-weight: bold; border-top: 1px solid black;" onclick="playSong(${song.id})">${songName}</li>
+                            <i class="fa fa-trash-o"></i>
                         </div>
                    `;
             songContainer.appendChild(songElement);

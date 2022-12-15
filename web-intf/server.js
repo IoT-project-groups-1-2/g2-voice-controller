@@ -35,12 +35,14 @@ const client = mqtt.connect(broker_url);
 
 const web_topic = "rtttl/wtd";
 const device_topic = "rtttl/dtw";
+const mod_topic = "rtttl/mod"
 
 client.on('connect', function(){
     // console.log("hi")
     client.subscribe(web_topic);
     client.subscribe(device_topic);
-    console.log("Subscribed to both topics");
+    client.subscribe(mod_topic);
+    console.log("Subscribed to all topics");
         // if(client.connected){
         //     console.log('MQTT client connected: ' + client.connected);
         //     client.subscribe(web_topic, () => {
@@ -188,6 +190,12 @@ app.post('/add/song', (req, res) => {
     let id;
     id = playlist.length + 1;
     const newSong = {Name : name, rtttl : rtttl, id: id };
+    client.publish(mod_topic, JSON.stringify(newSong), {qos: 0, retain: false}, (error) => {
+        console.log(newSong + " published to:" + mod_topic);
+        if (error) {
+            console.error(error);
+        }
+    })
     addSong(newSong);
     res.redirect('/commands');
 

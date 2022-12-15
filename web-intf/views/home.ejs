@@ -179,7 +179,7 @@
         if (data.error === true) {
             console.log("error!");
         }else{
-            if(data === undefined && data === null && data.constructor === "test".constructor){
+            if(!isJsonString(data)){
                 document.getElementById("now_playing").innerText = "Now playing: " + data
             }else{
                 data = JSON.parse(data)
@@ -188,6 +188,15 @@
 
         }
     });
+
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
 
 
 </script>

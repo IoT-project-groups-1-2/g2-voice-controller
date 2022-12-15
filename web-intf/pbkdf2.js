@@ -7,6 +7,7 @@ const config = {
     digest : 'sha512'
 };
 
+//Hashing the password and encrypting the password
 const  hashPassword = (pw) =>{
     return new Promise((resolved, rejected)=>{
         crypto.randomBytes(config.saltBytes, (err, salt) =>{
@@ -22,6 +23,8 @@ const  hashPassword = (pw) =>{
         });
     });
 }
+
+//Checking the encrypted password is the same with the password in the login page
 
 const  verifyPassword = (pw, hashed_pw) =>{
     return new Promise((resolved, rejected)=>{

@@ -101,6 +101,7 @@
 </body>
 
 <script>
+    //Getting the songlist through json and displaying them one by one
     fetch('/api/songs').then(res=>res.json()).then(list => {
         list.forEach(song =>{
             let songName = song.Name;

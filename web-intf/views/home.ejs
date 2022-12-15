@@ -140,6 +140,9 @@
         left:35%;
         font-size: 35px;
     }
+    #now_playing{
+        text-align: center;
+    }
 
 
 
@@ -173,6 +176,8 @@
 
 <div id="app"></div>
 <script>
+
+    //Connecting the socket and receiving the data by websocket
     let socket = io();
     socket.on('connection');
     socket.on('rtttl', (data) => {
@@ -238,6 +243,8 @@
     let username = document.getElementById("username");
     username.innerText = "You are now login as: " + getCookie("curr_user");
 
+
+    //Countdown clock configuration
     document.getElementById("app").innerHTML = `
 <div class="base-timer">
   <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -361,12 +368,6 @@
     }
 
 
-
-
-
-
-
-
     let song = [];
     fetch('/api/songs').then(res=>res.json()).then(list => {
         song = list;
@@ -393,6 +394,9 @@
         }
         if(songID === "eight"){
             return 8;
+        }
+        if(songID === "nine"){
+            return 9;
         }
         return songID;
     }

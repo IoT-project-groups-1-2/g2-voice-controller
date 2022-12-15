@@ -7,9 +7,7 @@ import network
 import urequests
 import credentials as creds
 from umqtt.simple import MQTTClient
-import _thread
 import json
-
 
 
 
@@ -46,20 +44,22 @@ topic_sub = 'rtttl/wtd'
 
 
 current_track = None;
-index = 69;
-lock = _thread.allocate_lock()
+index = 0;
 
 
 def wifi_connect():
     """
     Connect to wifi based on provided credentials, results will be shown on LCD screeen
     """
-    lcd.putstr("Connecting to Wifi...")
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(creds.ssid, creds.password)
-    lcd.clear()
-    lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
+    while True:
+        lcd.putstr("Connecting to Wifi...")
+        wlan = network.WLAN(network.STA_IF)
+        wlan.active(True)
+        wlan.connect(creds.ssid, creds.password)
+        lcd.clear()
+        lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
+        if wlan.isconnected() is True:
+            return
 
 
 
@@ -118,22 +118,9 @@ wifi_connect()
 playlist = fetch_playlist()
 nr_of_songs = len(playlist)
 client = mqtt_connect()
+client.set_callback(mqtt_cb)
+client.subscribe(topic_sub)
 
-
-def mqttTask():
-    """
-    MQTT task, checking message from server and display necessary information to LCD
-    """
-    client.set_callback(mqtt_cb)
-    client.subscribe(topic_sub)
-    while True:	
-        lock.acquire()
-        client.check_msg()
-        lock.release()
-        
-#Starting MQTT task on 2nd thread
-_thread.start_new_thread(mqttTask, ())
-    
 
 
 def loop():
@@ -141,28 +128,25 @@ def loop():
     Main task, checking if a track is on queue, play track, else put on LCD menu
     """
     while True:
-        lock.acquire()
         global playlist
         global current_track
         global index
+        index_changed = False
         while current_track is None:
-            index_changed = False
+            
             if up_btn.value() is 1:
-                print("ROBIN KOOL")
                 index_changed = True
                 if index is 0:
                     index = len(playlist) - 1
                 else:
                     index -= 1
             if down_btn.value() is 1:
-                print("RUSSELL VAN DULKEN")
                 index_changed = True
                 if index is len(playlist) - 1:
                     index = 0
                 else:
                     index += 1
             if ok_btn.value() is 1:
-                print("Finn Andersen")
                 current_track = playlist[index]
 
             if index_changed:
@@ -170,12 +154,19 @@ def loop():
                 lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
                 lcd.move_to(0, 1)
                 lcd.putstr("UP    OK    DOWN")
+                index_changed = False
+            client.check_msg()
+    
+        
         lcd.putstr(current_track["Name"])
         client.publish(topic_pub, "Playing " + current_track["Name"])
         playTrack(current_track)
+        lcd.clear()
+        lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
+        lcd.move_to(0, 1)
+        lcd.putstr("UP    OK    DOWN")
 
         current_track = None;
-        lock.release()
         
 def playTrack(track_json):
     """

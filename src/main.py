@@ -40,7 +40,7 @@ mqtt_server = 'broker.hivemq.com'
 client_id = 'PicoW'
 topic_pub = 'rtttl/dtw'
 topic_sub = 'rtttl/wtd'
-
+topic_mod = 'rtttl/mod'
 
 current_track = None;
 index = 0;
@@ -76,11 +76,16 @@ def mqtt_cb(topic, msg):
     MQTT Callback function, called when a message is received from a subscribed topic
 
     Args:
-        topic (str): Topic to which the message was sent
+        -=topic (str): Topic to which the message was sent
         msg (byte): Message in byte format. Can be converted to string: str(msg, 'UTF-8')
     """
-    global current_track
-    current_track = json.loads(msg)
+    print("Received {} from {}".format(msg, topic))
+    if str(topic, 'UTF-8') is topic_mod:
+        global playlist
+        playlist = json.loads(msg)
+    else:
+        global current_track
+        current_track = json.loads(msg)
 
 
 
@@ -91,7 +96,7 @@ def fetch_playlist():
     Returns:
         playlist (dict): Returns a dictionary containing songs
     """
-    playlist = urequests.get("http://192.168.121.235:3000/api/songs").json()
+    playlist = urequests.get("http://192.168.121.50:3000/api/songs").json()
     lcd.clear()
     lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
     lcd.move_to(0, 1)
@@ -118,6 +123,7 @@ nr_of_songs = len(playlist)
 client = mqtt_connect()
 client.set_callback(mqtt_cb)
 client.subscribe(topic_sub)
+client.subscribe(topic_mod)
 
 
 

@@ -50,16 +50,12 @@ def wifi_connect():
     """
     Connect to wifi based on provided credentials, results will be shown on LCD screeen
     """
-    while True:
-        lcd.putstr("Connecting to Wifi...")
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        wlan.connect(creds.ssid, creds.password)
-        lcd.clear()
-        lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
-        if wlan.isconnected() is True:
-            return
-        
+    lcd.putstr("Connecting to Wifi...")
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(creds.ssid, creds.password)
+    lcd.clear()
+    lcd.putstr("Connected!!" if wlan.isconnected() else "Attempt failed! Please try again")
 
 
 
@@ -93,10 +89,14 @@ def fetch_playlist():
     Fetching playlist from the server
 
     Returns:
-        res (dict): Returns a dictionary containing songs
+        playlist (dict): Returns a dictionary containing songs
     """
-    res = urequests.get("http://192.168.176.235:3000/api/songs").json()
-    return res
+    playlist = urequests.get("http://192.168.121.235:3000/api/songs").json()
+    lcd.clear()
+    lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
+    lcd.move_to(0, 1)
+    lcd.putstr("<-     OK    ->")
+    return playlist
 
 
 

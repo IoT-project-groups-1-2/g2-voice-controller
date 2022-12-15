@@ -16,7 +16,6 @@ Pins configs
 """
 
 speaker = PWM(Pin(0))
-shuffle_btn = Pin(1, Pin.IN, Pin.PULL_UP)
 up_btn = Pin(2, Pin.IN, Pin.PULL_DOWN)
 ok_btn = Pin(3, Pin.IN, Pin.PULL_DOWN)
 down_btn = Pin(4, Pin.IN, Pin.PULL_DOWN)
@@ -51,14 +50,16 @@ def wifi_connect():
     """
     Connect to wifi based on provided credentials, results will be shown on LCD screeen
     """
-    lcd.putstr("Connecting to Wifi...")
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(creds.ssid, creds.password)
-    lcd.clear()
-    lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
-    print("I SHOW SPEED")
-            
+    while True:
+        lcd.putstr("Connecting to Wifi...")
+        wlan = network.WLAN(network.STA_IF)
+        wlan.active(True)
+        wlan.connect(creds.ssid, creds.password)
+        lcd.clear()
+        lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
+        if wlan.isconnected() is True:
+            return
+        
 
 
 
@@ -71,7 +72,6 @@ def mqtt_connect():
     """
     client = MQTTClient(client_id, mqtt_server, user=creds.mqtt_usr, password=creds.mqtt_password, keepalive=0)
     client.connect()
-    print('Connected to %s MQTT Broker'%(mqtt_server))
     return client
 
 
@@ -83,7 +83,6 @@ def mqtt_cb(topic, msg):
         topic (str): Topic to which the message was sent
         msg (byte): Message in byte format. Can be converted to string: str(msg, 'UTF-8')
     """
-    print("Received {} from topic {}".format(str(msg, "UTF-8"), str(topic, "UTF-8")))
     global current_track
     current_track = json.loads(msg)
 
@@ -96,7 +95,7 @@ def fetch_playlist():
     Returns:
         res (dict): Returns a dictionary containing songs
     """
-    res = urequests.get("http://192.168.121.235:3000/api/songs").json()
+    res = urequests.get("http://192.168.176.235:3000/api/songs").json()
     return res
 
 
@@ -132,10 +131,7 @@ def loop():
         global index
         index_changed = False
         while current_track is None:
-            lcd.clear()
-            lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
-            lcd.move_to(0, 1)
-            lcd.putstr("<-     OK     ->")
+            
             if up_btn.value() is 1:
                 index_changed = True
                 if index is 0:
@@ -155,7 +151,7 @@ def loop():
                 lcd.clear()
                 lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
                 lcd.move_to(0, 1)
-                lcd.putstr("<-     OK     ->")
+                lcd.putstr("<-     OK    ->")
                 index_changed = False
             client.check_msg()
     
@@ -166,7 +162,7 @@ def loop():
         lcd.clear()
         lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
         lcd.move_to(0, 1)
-        lcd.putstr("<-     OK     ->")
+        lcd.putstr("<-     OK    ->")
 
         current_track = None;
         

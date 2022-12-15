@@ -51,15 +51,14 @@ def wifi_connect():
     """
     Connect to wifi based on provided credentials, results will be shown on LCD screeen
     """
-    while True:
-        lcd.putstr("Connecting to Wifi...")
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        wlan.connect(creds.ssid, creds.password)
-        lcd.clear()
-        lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
-        if wlan.isconnected() is True:
-            return
+    lcd.putstr("Connecting to Wifi...")
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(creds.ssid, creds.password)
+    lcd.clear()
+    lcd.putstr("Connected!!" if wlan.isconnected() else "Failed to connect to Wifi!!")
+    print("I SHOW SPEED")
+            
 
 
 
@@ -70,7 +69,7 @@ def mqtt_connect():
     Returns:
         client (MQTTClient): MQTT Client Object
     """
-    client = MQTTClient(client_id, mqtt_server, user=creds.mqtt_usr, password=creds.mqtt_password, keepalive=60)
+    client = MQTTClient(client_id, mqtt_server, user=creds.mqtt_usr, password=creds.mqtt_password, keepalive=0)
     client.connect()
     print('Connected to %s MQTT Broker'%(mqtt_server))
     return client
@@ -133,7 +132,10 @@ def loop():
         global index
         index_changed = False
         while current_track is None:
-            
+            lcd.clear()
+            lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
+            lcd.move_to(0, 1)
+            lcd.putstr("<-     OK     ->")
             if up_btn.value() is 1:
                 index_changed = True
                 if index is 0:
@@ -153,7 +155,7 @@ def loop():
                 lcd.clear()
                 lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
                 lcd.move_to(0, 1)
-                lcd.putstr("UP    OK    DOWN")
+                lcd.putstr("<-     OK     ->")
                 index_changed = False
             client.check_msg()
     
@@ -164,7 +166,7 @@ def loop():
         lcd.clear()
         lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
         lcd.move_to(0, 1)
-        lcd.putstr("UP    OK    DOWN")
+        lcd.putstr("<-     OK     ->")
 
         current_track = None;
         

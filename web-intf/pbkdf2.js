@@ -17,7 +17,6 @@ const  hashPassword = (pw) =>{
                 if (err) {return rejected('Error while sign in');}
                 derivedKey = derivedKey.toString('hex');
                 const combined = [salt, derivedKey, config.iterations, config.hashBytes, config.digest].join('$');
-                console.log(combined);
                 resolved(combined);
             });
         });

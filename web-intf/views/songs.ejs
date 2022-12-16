@@ -130,7 +130,6 @@
         const songContainer = document.getElementById("songContainer");
         const binToDelete = document.getElementById("trashBin" + songID);
         if (confirm('Are you sure you want to delete this song?')) {
-            console.log("hi");
             fetch('/' + songID, {
                 method: 'DELETE',
                 headers: {
@@ -143,10 +142,9 @@
                        binToDelete.parentNode.removeChild(binToDelete);
                     } else {
                         return Promise.reject(res.text());
-                        console.log("hi");
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(err => {});
         }
     }
 
@@ -171,7 +169,6 @@
                         </div>
                    `;
             if(songState == true){
-                console.log("hi");
             }
             songContainer.appendChild(songElement);
         })

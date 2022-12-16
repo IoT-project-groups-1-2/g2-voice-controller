@@ -39,32 +39,22 @@ const mod_topic = "rtttl/mod"
 
 // CONNECTING TO THE MQTT SERVER AND SUBSCRIBING TO THE TOPICS
 client.on('connect', function () {
-    // console.log("hi")
     client.subscribe(web_topic);
     client.subscribe(device_topic);
     client.subscribe(mod_topic);
-    console.log("Subscribed to all topics");
-    // if(client.connected){
-    //     console.log('MQTT client connected: ' + client.connected);
-    //     client.subscribe(web_topic, () => {
-    //         console.log("subscribed to " + web_topic);
-    //     });
-    //         client.subscribe(device_topic,{qos : 0})
-    // }
+
 
 });
 
 
 // Connecting to the websockets and will send to the mqtt topic once message is received by the websocket
 io.on('connection', (socket) => {
-    console.log("User " + socket.id + " connected");
     setInterval(() => {
         client.on('message', (topic, msg) => {
             client.removeAllListeners();
             msg =
                 msg.toString();
             io.emit('rtttl', msg);
-            console.log(msg + " received & sent through websocket");
         });
 
     }, 8000)
@@ -72,7 +62,6 @@ io.on('connection', (socket) => {
 
     socket.on("songs", (arg) => {
         client.publish(web_topic, arg, {qos: 0, retain: false}, (error) => {
-            console.log(arg + " published to:" + web_topic);
             if (error) {
                 console.error(error);
             }
@@ -186,7 +175,6 @@ app.post('/login', (req, res) => {
                         return res.redirect('/');
                     });
             } else {
-                console.log("USERNAME NOT FOUND");
                 res.cookie("login_err", 401);
                 return res.redirect('/');
             }
@@ -203,7 +191,6 @@ app.post('/add/song', (req, res) => {
 
     addSong(newSong);
     client.publish(mod_topic, JSON.stringify(songs), {qos: 0, retain: false}, (error) => {
-        console.log("New Song published to:" + mod_topic);
         if (error) {
             console.error(error);
         }
@@ -213,20 +200,15 @@ app.post('/add/song', (req, res) => {
 });
 
 app.delete('/:id', async (req, res) => {
-
-    console.log(req.params.id);
     for (let i = 0; i < songs.length; ++i) {
         if (String(songs[i].id) === req.params.id) {
             songs.splice(i, 1);
-            console.log(songs)
             fs.writeFile("songs.json", JSON.stringify(songs), (err) => {
-                if (err)
-                    console.log(err);
+                if (err) {}
 
             });
 
             client.publish(mod_topic, JSON.stringify(songs), {qos: 0, retain: false}, (error) => {
-                console.log("Song deleted and send to: " + mod_topic);
                 if (error) {
                     console.error(error);
                 }
@@ -257,7 +239,7 @@ const addUser = (newUser) => {
                     dbo.collection("users").insertOne(newUser, function (err) {
                         if (err) reject("FAILED TO ADD NEW USER TO DATABASE. PLEASE TRY AGAIN.");
                         resolve("SIGNED UP SUCCESSFULLY");
-                        db.close().then(r => console.log(r));
+                        db.close();
                     });
                 }
             });

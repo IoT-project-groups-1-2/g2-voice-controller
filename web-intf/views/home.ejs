@@ -182,7 +182,6 @@
     socket.on('connection');
     socket.on('rtttl', (data) => {
         if (data.error === true) {
-            console.log("error!");
         }else{
             if(!isJsonString(data)){
                 document.getElementById("now_playing").innerText = "Now playing: " + data

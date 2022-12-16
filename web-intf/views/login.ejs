@@ -140,14 +140,10 @@
         this.classList.toggle('fa-eye-slash');
     });
 
-    console.log(document.cookie);
     const cookies = document.cookie;
     const index = cookies.indexOf("login_err=");
-    console.log(index);
     const err_str = cookies.substring(index, index+13);
-    console.log(err_str);
     const err_code = Number(err_str.slice(err_str.length-3, err_str.length));
-    console.log(err_code);
     const err = document.getElementById("err");
     switch (err_code) {
         //success

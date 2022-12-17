@@ -42,13 +42,16 @@ topic_pub = 'rtttl/dtw'
 topic_sub = 'rtttl/wtd'
 topic_mod = 'rtttl/mod'
 
+#current track on the queue
 current_track = None;
+
+#current song index being shown on LCD
 index = 0;
 
 
 def wifi_connect():
     """
-    Connect to wifi based on provided credentials, results will be shown on LCD screeen
+    Connect to wifi based on provided credentials, results to be shown on LCD screeen
     """
     lcd.putstr("Connecting to Wifi...")
     wlan = network.WLAN(network.STA_IF)
@@ -73,10 +76,11 @@ def mqtt_connect():
 
 def mqtt_cb(topic, msg):
     """
-    MQTT Callback function, called when a message is received from a subscribed topic
+    MQTT Callback function, called when a message is received from a subscribed topic.
+    If received a message from mod topic, the playlist is updated, otherwise get song from wtd topic and play it
 
     Args:
-        -=topic (str): Topic to which the message was sent
+        topic (byte): Topic to which the message was sent
         msg (byte): Message in byte format. Can be converted to string: str(msg, 'UTF-8')
     """
     print("Received {} from {}".format(msg, topic))
@@ -108,6 +112,10 @@ def fetch_playlist():
 def play_tone(freq, msec):
     """
     Playing a single tone
+
+    Args:
+        freq (int): frequency to play at
+        msec (int): playtime duration in milliseconds
     """
     if freq > 0:
         speaker.freq(int(freq))       # Set frequency
@@ -117,6 +125,7 @@ def play_tone(freq, msec):
     sleep_ms(int(0.1 * msec))     # Pause for a number of msec
 
 
+#initializations
 wifi_connect()
 playlist = fetch_playlist()
 nr_of_songs = len(playlist)
@@ -129,7 +138,7 @@ client.subscribe(topic_mod)
 
 def loop():
     """
-    Main task, checking if a track is on queue, play track, else put on LCD menu
+    Main task, checking if a track is on MQTT message queue, play track, else put on LCD menu
     """
     while True:
         global playlist
@@ -153,6 +162,7 @@ def loop():
             if ok_btn.value() is 1:
                 current_track = playlist[index]
 
+            #preventing repetitive printing to LCD screen
             if index_changed:
                 lcd.clear()
                 lcd.putstr(str(playlist[index]["id"]) + "." + playlist[index]["Name"][0:13])
@@ -170,11 +180,13 @@ def loop():
         lcd.move_to(0, 1)
         lcd.putstr("<-     OK    ->")
 
+        #Reset
         current_track = None;
-        
+
+
 def playTrack(track_json):
     """
-    Iterate through notes of a track and play each one. Blocking function
+    Iterate through notes of a track and play each one, toggling LED in the process. Blocking function
     
     Args:
         track_json (dict): The desired track to be played, in dict format

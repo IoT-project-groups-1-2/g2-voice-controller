@@ -1,7 +1,5 @@
 src/credentials.py
 web-intf/node_modules
-web-intf/package*
 .picowgo
-pinmap.xlsx
 .idea
 .vscode

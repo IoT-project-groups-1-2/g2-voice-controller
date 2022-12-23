@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-12-23T00:12:35.297Z" agent="5.0 (Windows)" etag="kErB4RYjfu3Ikrpk8XTe" version="20.7.4" type="github">
+<mxfile host="app.diagrams.net" modified="2022-12-23T00:14:08.771Z" agent="5.0 (Windows)" etag="Djbas2KEQ9hwVbRpWuRC" version="20.7.4" type="github">
   <diagram id="sM7dTeMf5jetUyKNvWkQ" name="Page-1">
     <mxGraphModel dx="2074" dy="1134" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -36,22 +36,13 @@
         <mxCell id="4S98WuqxxE_fRCDPHOUg-5" value="&lt;div&gt;3W i2s amp&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="360" y="550" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4S98WuqxxE_fRCDPHOUg-9" value="&lt;div&gt;PDM - PCM conversion and&lt;br&gt;&lt;/div&gt;&lt;div&gt;voice analysis on PCM signal&lt;br&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="570" y="320" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="4S98WuqxxE_fRCDPHOUg-12" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.421;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="4S98WuqxxE_fRCDPHOUg-9" target="4S98WuqxxE_fRCDPHOUg-3" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="400" y="430" as="sourcePoint" />
-            <mxPoint x="450" y="380" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="4S98WuqxxE_fRCDPHOUg-14" value="1st Iteration Hardware Diagram" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=24;" parent="1" vertex="1">
           <mxGeometry x="50" y="50" width="360" height="40" as="geometry" />
         </mxCell>
         <mxCell id="4S98WuqxxE_fRCDPHOUg-17" value="input" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=24;" parent="1" vertex="1">
           <mxGeometry x="215" y="155" width="80" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="4S98WuqxxE_fRCDPHOUg-4" value="PDM" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+        <mxCell id="4S98WuqxxE_fRCDPHOUg-4" value="PCM" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="345" y="230" width="50" height="30" as="geometry" />
         </mxCell>
         <mxCell id="4S98WuqxxE_fRCDPHOUg-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;" parent="1" source="4S98WuqxxE_fRCDPHOUg-2" target="4S98WuqxxE_fRCDPHOUg-4" edge="1">

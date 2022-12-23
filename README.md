@@ -9,6 +9,7 @@ This project is about digital audio, whereas a RTTTL string will be sent by the 
 
 - #### Operation:
 	User is free to operate this system from both the hardware side and the web side, whereas users can play the song which is saved as a RTTTL string format. 
+	
 	1. ###### Physcial user interface: 
 When the whole system is turned on, Raspberry Pico will try to connect to the internet via WIFI. LCD will display a loading screen when WIFI is not connect, after connecting to WIFI, there are three buttons to navigate the on-screen list of songs. The top line displays the currently selected song on the list. Left and right buttons move up and down the list of songs (buttons <- | ->), while the center button selects the currently selected song for playback. When Raspberry Pico received a RTTTL string through MQTT from the web, it will temporary disable the menu, and only displays the song name that it received. After a RTTTL string is received, Rasspberry Pico will parse the string. Musical note in RTTTL format is a tuple containing the note duration and note key, or frequency. The notes are iterated through and each note is referenced to a lookup table that contains their frequency at the base octave, that is then multiplied to match the desired note frequency. Likewise the note duration is altered from the default if a modifier is present on the note. The parsed data contains two values, note length in ms and frequency in Hz, that are output into a table for the main program to output to a buzzer as PWM signal.
 	2. ###### Web UI interface:
